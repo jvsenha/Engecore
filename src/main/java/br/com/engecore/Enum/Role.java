@@ -6,6 +6,7 @@ public enum Role {
     ROLE_CLIENTE(null),
 
     //ROLE DE FUNCIONARIOS
+    ROLE_FUNC("FUNC"),
     ROLE_FUNC_GERENTE("FUNC"),
     ROLE_FUNC_FINANCEIRO("FUNC"),
     ROLE_FUNC_GESTOR("FUNC"),

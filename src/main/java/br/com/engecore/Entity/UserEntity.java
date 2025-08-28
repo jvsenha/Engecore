@@ -20,7 +20,7 @@ public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private long idUsuario;
 
     @NotBlank(message = "Nome é obrigatório")
     @Column( name="nome", nullable = false )
@@ -35,13 +35,13 @@ public class UserEntity {
     @Column( name="senha", nullable = false )
     private String senha;
 
-    @Enumerated(EnumType.STRING)
-    private Status status;
-
     @NotBlank(message = "Telefone é obrigatorio")
     @Column(name = "telefone", unique = true, nullable = false)
     @Pattern( regexp = "\\([1-9]{2}\\)\\s9[0-9]{4}-[0-9]{4}", message = "Telefone deve estar no formato (99) 99999-9999")
     private String telefone;
+
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     @Enumerated(EnumType.STRING)
     private Role role;
