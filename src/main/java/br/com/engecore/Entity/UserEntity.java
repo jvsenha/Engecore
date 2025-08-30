@@ -41,9 +41,11 @@ public class UserEntity {
     private String telefone;
 
     @Enumerated(EnumType.STRING)
-    private Status status;
+    @Column(nullable = false)
+    private Status status = Status.STATUS_ATIVO;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;
 
 }

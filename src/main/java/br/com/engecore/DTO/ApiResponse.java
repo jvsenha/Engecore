@@ -1,4 +1,4 @@
-package br.com.engecore.Response;
+package br.com.engecore.DTO;
 
 
 import lombok.AllArgsConstructor;

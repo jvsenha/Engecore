@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Table(name = "material")
 public class MaterialEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long idMaterial;
@@ -29,6 +30,8 @@ public class MaterialEntity {
     @Column(name = "quantidadeMinima", nullable = false)
     private float quantidadeMinima;
 
-
-
+    // Estoque ao qual o material pertence
+    @ManyToOne
+    @JoinColumn(name = "estoque_id", nullable = false)
+    private EstoqueEntity estoque;
 }

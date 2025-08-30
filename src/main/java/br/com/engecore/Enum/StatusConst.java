@@ -1,7 +1,8 @@
 package br.com.engecore.Enum;
 
 public enum StatusConst {
+    PLANEJAMENTO,
     EM_ANDAMENTO,
     CONCLUIDA,
-    PAUSADA
+    CANCELADA
 }

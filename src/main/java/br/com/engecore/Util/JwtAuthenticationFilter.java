@@ -18,11 +18,12 @@ import java.util.Collections;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
     @Autowired
     private JwtUtil jwtUtil;
 
-    //Captura todas as requisisoes para verificar se tem o token para autenticar
+    @Autowired
+    private TokenBlacklist tokenBlacklist; // blacklist de tokens
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
@@ -31,7 +32,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String token = null;
         String email = null;
 
-        // verifica se tem o Bearer
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);
             try {
@@ -41,13 +41,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        //verifica se possui o email para validar o token
+        // Verifica se o token está na blacklist
+        if (token != null && tokenBlacklist.contains(token)) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token inválido");
+            return; // bloqueia a requisição
+        }
+
         if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             if (jwtUtil.validateToken(token, email)) {
                 String role = jwtUtil.extractRole(token);
                 Long userId = jwtUtil.extractUserId(token);
 
-                // Criar authentication com role
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(
                                 email,
@@ -55,7 +59,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 Collections.singletonList(new SimpleGrantedAuthority(role))
                         );
 
-                // Adicionar informações extras no contexto
                 authToken.setDetails(new JwtAuthenticationDetails(userId, email, role));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
@@ -64,7 +67,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    // Classe para armazenar detalhes da autenticação
     public static class JwtAuthenticationDetails {
         private Long userId;
         private String email;
@@ -80,5 +82,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         public String getEmail() { return email; }
         public String getRole() { return role; }
     }
-
 }

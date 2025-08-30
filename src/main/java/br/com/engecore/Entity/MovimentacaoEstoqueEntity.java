@@ -15,29 +15,40 @@ import java.time.LocalDate;
 @Table(name = "movimentacao_estoque")
 public class MovimentacaoEstoqueEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long idMov;
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        private Long idMovimentacao;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "tipo", nullable = false)
-    private TipoMov tipo;
+        // Material movimentado
+        @ManyToOne
+        @JoinColumn(name = "material_id", nullable = false)
+        private MaterialEntity material;
 
-    @Column(name = "data", nullable = false)
-    private LocalDate data;
+        // Estoque de origem (pode ser null se for ENTRADA)
+        @ManyToOne
+        @JoinColumn(name = "estoque_origem_id")
+        private EstoqueEntity estoqueOrigem;
 
-    @Column(name = "quantidade", nullable = false)
-    private Double quantidade;
+        // Estoque de destino (pode ser null se for SAÍDA)
+        @ManyToOne
+        @JoinColumn(name = "estoque_destino_id")
+        private EstoqueEntity estoqueDestino;
 
-    @ManyToOne
-    @JoinColumn(name = "usuario_responsavel_id", nullable = false)
-    private UserEntity usuarioResponsavel;
+        // Quantidade movimentada
+        @Column(nullable = false)
+        private float quantidade;
 
-    @ManyToOne
-    @JoinColumn(name = "material_id", nullable = false)
-    private MaterialEntity material;
+        // Tipo da movimentação: ENTRADA, SAIDA ou TRANSFERENCIA
+        @Enumerated(EnumType.STRING)
+        @Column(nullable = false)
+        private TipoMov tipoMov;
 
-    @ManyToOne
-    @JoinColumn(name = "obra_id")
-    private ObrasEntity obraRelacionado;
+        // Data da movimentação
+        @Column(nullable = false)
+        private LocalDate dataMovimentacao;
+
+        // Funcionário responsável pela movimentação
+        @ManyToOne
+        @JoinColumn(name = "funcionario_id", nullable = false)
+        private FuncionarioEntity funcionarioResponsavel;
 }

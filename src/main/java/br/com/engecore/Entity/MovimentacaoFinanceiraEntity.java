@@ -1,11 +1,13 @@
 package br.com.engecore.Entity;
 
-import br.com.engecore.Enum.TipoMov;
+import br.com.engecore.Enum.CategoriaFinanceira;
+import br.com.engecore.Enum.TipoMovFinanceiro;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -16,27 +18,35 @@ import java.time.LocalDate;
 public class MovimentacaoFinanceiraEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long idMov;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idMovimento;
+
+    @Column(nullable = false)
+    private BigDecimal valor;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "tipo", nullable = false)
-    private TipoMov tipo;
+    @Column(nullable = false)
+    private TipoMovFinanceiro tipo; // RECEITA ou DESPESA
 
-    @Column(name = "valor", nullable = false)
-    private Double valor;
-
-    @Column(name = "data", nullable = false)
-    private LocalDate data;
-
-    @Column(name = "descricao")
-    private String descricao;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private CategoriaFinanceira categoriaFinanceira; // Nova categoria adicionada
 
     @ManyToOne
     @JoinColumn(name = "obra_id")
-    private ObrasEntity obraRelacionado;
+    private ObrasEntity obra; // opcional, se a despesa ou receita for de uma obra específica
 
     @ManyToOne
-    @JoinColumn(name = "usuario_responsavel_id", nullable = false)
-    private UserEntity usuarioResponsavel;
+    @JoinColumn(name = "material_id")
+    private MaterialEntity material; // opcional, se a despesa for referente a um material
+
+    @ManyToOne
+    @JoinColumn(name = "funcionario_id")
+    private FuncionarioEntity funcionarioResponsavel; // quem registrou a movimentação
+
+    @Column(nullable = false)
+    private LocalDate dataMovimento;
+
+    @Column(length = 255)
+    private String descricao; // descrição da movimentação
 }
