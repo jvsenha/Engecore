@@ -4,6 +4,7 @@ import br.com.engecore.Enum.FaixaRenda;
 import br.com.engecore.Enum.ProgramaSocial;
 import br.com.engecore.Enum.StatusConst;
 import br.com.engecore.Enum.TipoObra;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -38,6 +39,7 @@ public class ObrasEntity{
 
     @ManyToOne
     @JoinColumn(name = "cliente_id")
+    @JsonBackReference
     private ClienteEntity cliente;
 
     @ManyToOne

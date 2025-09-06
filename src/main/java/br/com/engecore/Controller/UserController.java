@@ -46,7 +46,7 @@ public class UserController {
     @PutMapping("/{id}/alterar-senha")
     public ResponseEntity<ApiResponse<Void>> alterarSenha(@PathVariable Long id, @RequestParam String novaSenha) {
         try {
-            userService.AlterarSenhaAdmFunc(id, novaSenha);
+            userService.alterarSenhaAdmFunc(id, novaSenha);
             return ResponseEntity.ok(new ApiResponse<>(true, "Senha alterada com sucesso", null));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), null));

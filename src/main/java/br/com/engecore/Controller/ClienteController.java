@@ -2,6 +2,7 @@ package br.com.engecore.Controller;
 
 import br.com.engecore.DTO.ApiResponse;
 import br.com.engecore.DTO.ClienteDTO;
+import br.com.engecore.Entity.ClienteEntity;
 import br.com.engecore.Entity.ObrasEntity;
 import br.com.engecore.Service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,12 +12,13 @@ import org.springframework.web.bind.annotation.*;
 import java.math.BigDecimal;
 import java.util.List;
 
-@RestController("/cliente")
+@RestController
+@RequestMapping("/cliente")
 public class ClienteController {
     @Autowired
     private ClienteService clienteService;
 
-    @PostMapping
+    @PostMapping("/cadastrar")
     public ResponseEntity<ApiResponse<ClienteDTO>> cadastrarCliente(@RequestBody ClienteDTO dto) {
         ClienteDTO cliente = clienteService.cadastrar(dto);
         return ResponseEntity.ok(
@@ -24,7 +26,7 @@ public class ClienteController {
         );
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/alterar/{id}")
     public ResponseEntity<ApiResponse<ClienteDTO>> atualizarCliente(
             @PathVariable Long id,
             @RequestBody ClienteDTO dto
@@ -35,7 +37,7 @@ public class ClienteController {
         );
     }
 
-    @PutMapping("/perfil")
+    @PutMapping("/alterar/perfil")
     public ResponseEntity<ApiResponse<ClienteDTO>> atualizarPerfil(@RequestBody ClienteDTO dto) {
         ClienteDTO clienteAtualizado = clienteService.atualizarPerfilCliente(dto);
         return ResponseEntity.ok(
@@ -50,8 +52,15 @@ public class ClienteController {
                 new ApiResponse<>(true, "Cliente encontrado", cliente)
         );
     }
+    @GetMapping("/listar")
+    public ResponseEntity<ApiResponse<List<ClienteEntity>>> listar() {
+        List<ClienteEntity> clientes = clienteService.listar();
+        return ResponseEntity.ok(
+                new ApiResponse<>(true, "Cliente encontrado", clientes)
+        );
+    }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/deletar/{id}")
     public ResponseEntity<ApiResponse<Void>> deletarCliente(@PathVariable Long id) {
         clienteService.deletarCliente(id);
         return ResponseEntity.ok(

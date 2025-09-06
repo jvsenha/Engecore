@@ -1,16 +1,12 @@
 package br.com.engecore.Service;
 
 import br.com.engecore.DTO.ClienteDTO;
-import br.com.engecore.Entity.ClienteEntity;
-import br.com.engecore.Entity.MovimentacaoFinanceiraEntity;
-import br.com.engecore.Entity.ObrasEntity;
+import br.com.engecore.Entity.*;
 import br.com.engecore.Enum.Status;
 import br.com.engecore.Enum.TipoMovFinanceiro;
+import br.com.engecore.Enum.TipoPessoa;
 import br.com.engecore.Mapper.UserMapper;
-import br.com.engecore.Repository.ClienteRepository;
-import br.com.engecore.Repository.MovimentacaoFinanceiraRepository;
-import br.com.engecore.Repository.ObrasRepository;
-import br.com.engecore.Util.JwtAuthenticationFilter;
+import br.com.engecore.Repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -31,28 +27,28 @@ public class ClienteService {
     private ObrasRepository obrasRepository;
 
     @Autowired
+    private UsuarioFisicoRepository usuarioFisicoRepository;
+
+    @Autowired
+    private UsuarioJuridicoRepository usuarioJuridicoRepository;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+
+    @Autowired
     private MovimentacaoFinanceiraRepository movimentacaoFinanceiraRepository;
 
-    @Autowired
-    public PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthFilter;
-
-    // Cadastro de cliente (feito por ADM ou FUNC)
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
     public ClienteDTO cadastrar(ClienteDTO dto) {
         ClienteEntity cliente = new ClienteEntity();
-
         cliente.setNome(dto.getNome());
         cliente.setEmail(dto.getEmail());
         cliente.setSenha(passwordEncoder.encode(dto.getSenha()));
         cliente.setTelefone(dto.getTelefone());
         cliente.setStatus(dto.getStatus() != null ? dto.getStatus() : Status.STATUS_ATIVO);
         cliente.setRole(dto.getRole());
-
         cliente.setTipoPessoa(dto.getTipoPessoa());
-        cliente.setCpfCnpj(dto.getCpfCnpj());
         cliente.setEndereco(dto.getEndereco());
 
         if (dto.getObrasIds() != null) {
@@ -60,16 +56,28 @@ public class ClienteService {
             cliente.setObras(obras);
         }
 
-        // Validar CPF/CNPJ antes de salvar
-        if (!cliente.isCpfCnpjValido()) {
-            throw new RuntimeException("CPF ou CNPJ inválido");
+        clienteRepository.save(cliente);
+
+        if (dto.getTipoPessoa() == TipoPessoa.FISICA && dto.getCpf() != null) {
+            UsuarioFisico fisico = new UsuarioFisico();
+            fisico.setUsuario(cliente);
+            fisico.setCpf(dto.getCpf());
+            fisico.setRg(dto.getRg());
+            fisico.setDataNascimento(dto.getDataNascimento());
+            usuarioFisicoRepository.save(fisico);
+        } else if (dto.getTipoPessoa() == TipoPessoa.JURIDICA && dto.getCnpj() != null) {
+            UsuarioJuridico juridico = new UsuarioJuridico();
+            juridico.setUsuario(cliente);
+            juridico.setCnpj(dto.getCnpj());
+            juridico.setRazaoSocial(dto.getRazaoSocial());
+            juridico.setNomeFantasia(dto.getNomeFantasia());
+            juridico.setInscricaoEstadual(dto.getInscricaoEstadual());
+            usuarioJuridicoRepository.save(juridico);
         }
 
-        clienteRepository.save(cliente);
         return UserMapper.toClienteDTO(cliente);
     }
 
-    // Atualização feita por ADM ou FUNC para qualquer cliente (precisa do ID)
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
     public ClienteDTO atualizarPorAdmFuncionario(Long id, ClienteDTO dto) {
         ClienteEntity cliente = clienteRepository.findById(id)
@@ -83,9 +91,7 @@ public class ClienteService {
         cliente.setTelefone(dto.getTelefone());
         cliente.setStatus(dto.getStatus() != null ? dto.getStatus() : Status.STATUS_ATIVO);
         cliente.setRole(dto.getRole());
-
         cliente.setTipoPessoa(dto.getTipoPessoa());
-        cliente.setCpfCnpj(dto.getCpfCnpj());
         cliente.setEndereco(dto.getEndereco());
 
         if (dto.getObrasIds() != null) {
@@ -93,27 +99,38 @@ public class ClienteService {
             cliente.setObras(obras);
         }
 
-        if (!cliente.isCpfCnpjValido()) {
-            throw new RuntimeException("CPF ou CNPJ inválido");
+        clienteRepository.save(cliente);
+
+        if (dto.getTipoPessoa() == TipoPessoa.FISICA) {
+            UsuarioFisico fisico = usuarioFisicoRepository.findById(cliente.getIdUsuario())
+                    .orElse(new UsuarioFisico());
+            fisico.setUsuario(cliente);
+            fisico.setCpf(dto.getCpf());
+            fisico.setRg(dto.getRg());
+            fisico.setDataNascimento(dto.getDataNascimento());
+            usuarioFisicoRepository.save(fisico);
+        } else if (dto.getTipoPessoa() == TipoPessoa.JURIDICA) {
+            UsuarioJuridico juridico = usuarioJuridicoRepository.findById(cliente.getIdUsuario())
+                    .orElse(new UsuarioJuridico());
+            juridico.setUsuario(cliente);
+            juridico.setCnpj(dto.getCnpj());
+            juridico.setRazaoSocial(dto.getRazaoSocial());
+            juridico.setNomeFantasia(dto.getNomeFantasia());
+            juridico.setInscricaoEstadual(dto.getInscricaoEstadual());
+            usuarioJuridicoRepository.save(juridico);
         }
 
-        clienteRepository.save(cliente);
         return UserMapper.toClienteDTO(cliente);
     }
 
-    // Atualização de perfil do próprio cliente (usa ID do token)
     @PreAuthorize("@securityService.isCliente(authentication)")
     public ClienteDTO atualizarPerfilCliente(ClienteDTO dto) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        JwtAuthenticationFilter.JwtAuthenticationDetails details =
-                (JwtAuthenticationFilter.JwtAuthenticationDetails) auth.getDetails();
-        Long userId = details.getUserId();
-
+        Long userId = ((Long) auth.getPrincipal());
 
         ClienteEntity cliente = clienteRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
-        // Campos permitidos para atualização pelo próprio cliente
         cliente.setNome(dto.getNome());
         cliente.setEmail(dto.getEmail());
         cliente.setTelefone(dto.getTelefone());
@@ -124,6 +141,26 @@ public class ClienteService {
         }
 
         clienteRepository.save(cliente);
+
+        if (cliente.getTipoPessoa() == TipoPessoa.FISICA) {
+            UsuarioFisico fisico = usuarioFisicoRepository.findById(cliente.getIdUsuario())
+                    .orElse(new UsuarioFisico());
+            fisico.setUsuario(cliente);
+            fisico.setCpf(dto.getCpf());
+            fisico.setRg(dto.getRg());
+            fisico.setDataNascimento(dto.getDataNascimento());
+            usuarioFisicoRepository.save(fisico);
+        } else if (cliente.getTipoPessoa() == TipoPessoa.JURIDICA) {
+            UsuarioJuridico juridico = usuarioJuridicoRepository.findById(cliente.getIdUsuario())
+                    .orElse(new UsuarioJuridico());
+            juridico.setUsuario(cliente);
+            juridico.setCnpj(dto.getCnpj());
+            juridico.setRazaoSocial(dto.getRazaoSocial());
+            juridico.setNomeFantasia(dto.getNomeFantasia());
+            juridico.setInscricaoEstadual(dto.getInscricaoEstadual());
+            usuarioJuridicoRepository.save(juridico);
+        }
+
         return UserMapper.toClienteDTO(cliente);
     }
 
@@ -140,12 +177,14 @@ public class ClienteService {
         clienteRepository.deleteById(id);
     }
 
-
     public List<ObrasEntity> listarObras(Long id) {
         return obrasRepository.findByClienteIdUsuario(id);
     }
+    public List<ClienteEntity> listar() {
+        return clienteRepository.findAll();
+    }
 
-    public BigDecimal calcularTotalGastoCliente(Long id){
+    public BigDecimal calcularTotalGastoCliente(Long id) {
         ClienteEntity cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado!"));
 
@@ -155,16 +194,14 @@ public class ClienteService {
             List<MovimentacaoFinanceiraEntity> movimentacoes =
                     movimentacaoFinanceiraRepository.findByObraIdObra(obra.getIdObra());
 
-            // Somar todas as despesas
             BigDecimal somaObra = movimentacoes.stream()
-                    .filter(mov -> mov.getTipo() == TipoMovFinanceiro.DESPESA) // apenas despesas
-                    .map(MovimentacaoFinanceiraEntity::getValor)               // pegar valor
-                    .reduce(BigDecimal.ZERO, BigDecimal::add);                // somar
+                    .filter(mov -> mov.getTipo() == TipoMovFinanceiro.DESPESA)
+                    .map(MovimentacaoFinanceiraEntity::getValor)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             totalGasto = totalGasto.add(somaObra);
         }
 
         return totalGasto;
     }
-
 }

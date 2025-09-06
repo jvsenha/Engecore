@@ -2,6 +2,7 @@ package br.com.engecore.Entity;
 
 import br.com.engecore.Enum.Role;
 import br.com.engecore.Enum.Status;
+import br.com.engecore.Enum.TipoPessoa;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -47,5 +48,9 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TipoPessoa tipoPessoa;
 
 }

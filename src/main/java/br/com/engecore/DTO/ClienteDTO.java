@@ -1,20 +1,39 @@
 package br.com.engecore.DTO;
 
+import br.com.engecore.Entity.EnderecoEmbeddable;
+import br.com.engecore.Enum.Role;
+import br.com.engecore.Enum.Status;
 import br.com.engecore.Enum.TipoPessoa;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import br.com.engecore.Entity.EnderecoEmbeddable;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class ClienteDTO extends UserDTO {
-    private String cpf;
-    private EnderecoEmbeddable endereco;
-    private List<Long> obrasIds;
+@AllArgsConstructor
+public class ClienteDTO {
+
+    private Long idUsuario;
+    private String nome;
+    private String email;
+    private String senha;
+    private String telefone;
+    private Status status;
+    private Role role;
     private TipoPessoa tipoPessoa;
-    private String cpfCnpj;
+    private EnderecoEmbeddable endereco;
+
+    private List<Long> obrasIds;
+
+    private String cpf;
+    private String rg;
+    private LocalDate dataNascimento;
+
+    private String cnpj;
+    private String razaoSocial;
+    private String nomeFantasia;
+    private String inscricaoEstadual;
 }

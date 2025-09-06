@@ -44,7 +44,6 @@ public class UserMapper {
         return dto;
     }
 
-    // ClienteEntity → ClienteDTO
     public static ClienteDTO toClienteDTO(ClienteEntity cliente) {
         if (cliente == null) return null;
 
@@ -55,15 +54,29 @@ public class UserMapper {
         dto.setTelefone(cliente.getTelefone());
         dto.setStatus(cliente.getStatus());
         dto.setRole(cliente.getRole());
-
-        dto.setCpf(cliente.getCpfCnpj());
         dto.setTipoPessoa(cliente.getTipoPessoa());
         dto.setEndereco(cliente.getEndereco());
+
         if (cliente.getObras() != null) {
             dto.setObrasIds(cliente.getObras()
                     .stream()
                     .map(o -> o.getIdObra())
                     .collect(Collectors.toList()));
+        }
+
+        // Campos de pessoa física
+        if (cliente.getUsuarioFisico() != null) {
+            dto.setCpf(cliente.getUsuarioFisico().getCpf());
+            dto.setRg(cliente.getUsuarioFisico().getRg());
+            dto.setDataNascimento(cliente.getUsuarioFisico().getDataNascimento());
+        }
+
+        // Campos de pessoa jurídica
+        if (cliente.getUsuarioJuridico() != null) {
+            dto.setCnpj(cliente.getUsuarioJuridico().getCnpj());
+            dto.setRazaoSocial(cliente.getUsuarioJuridico().getRazaoSocial());
+            dto.setNomeFantasia(cliente.getUsuarioJuridico().getNomeFantasia());
+            dto.setInscricaoEstadual(cliente.getUsuarioJuridico().getInscricaoEstadual());
         }
 
         return dto;
