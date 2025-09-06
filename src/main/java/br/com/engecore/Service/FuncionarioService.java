@@ -109,11 +109,11 @@ public class FuncionarioService {
 
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
     public List<MovimentacaoEstoqueEntity> historicoMovimentacoesEstoque(Long id) {
-        return movimentacaoEstoqueRepository.findByFuncionarioResponsavel(id);
+        return movimentacaoEstoqueRepository.findByFuncionarioResponsavelIdUsuario(id);
     }
 
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
     public List<MovimentacaoFinanceiraEntity> historicoMovimentacoesFinanceira(Long id) {
-        return movimentacaoFinanceiraRepository.findByFuncionarioResponsavel(id);
+        return movimentacaoFinanceiraRepository.findByFuncionarioResponsavelIdUsuario(id);
     }
 }

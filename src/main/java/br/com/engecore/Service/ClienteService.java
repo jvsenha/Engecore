@@ -141,8 +141,8 @@ public class ClienteService {
     }
 
 
-    public List<ObrasEntity> listarObras(Long id){
-        return obrasRepository.findByCliente(id);
+    public List<ObrasEntity> listarObras(Long id) {
+        return obrasRepository.findByClienteIdUsuario(id);
     }
 
     public BigDecimal calcularTotalGastoCliente(Long id){
@@ -153,7 +153,7 @@ public class ClienteService {
 
         for (ObrasEntity obra : cliente.getObras()) {
             List<MovimentacaoFinanceiraEntity> movimentacoes =
-                    movimentacaoFinanceiraRepository.findByObra(obra.getIdObra());
+                    movimentacaoFinanceiraRepository.findByObraIdObra(obra.getIdObra());
 
             // Somar todas as despesas
             BigDecimal somaObra = movimentacoes.stream()

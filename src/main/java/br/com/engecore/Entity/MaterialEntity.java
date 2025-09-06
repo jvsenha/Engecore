@@ -12,10 +12,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Table(name = "material")
 public class MaterialEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long idMaterial;
+    private long id;
 
     @Column(name = "nome", nullable = false)
     private String nome;
@@ -23,15 +22,4 @@ public class MaterialEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "unidade", nullable = false)
     private Unidade unidade;
-
-    @Column(name = "quantidadeAtual", nullable = false)
-    private float quantidadeAtual;
-
-    @Column(name = "quantidadeMinima", nullable = false)
-    private float quantidadeMinima;
-
-    // Estoque ao qual o material pertence
-    @ManyToOne
-    @JoinColumn(name = "estoque_id", nullable = false)
-    private EstoqueEntity estoque;
 }

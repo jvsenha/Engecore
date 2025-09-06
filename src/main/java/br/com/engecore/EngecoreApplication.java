@@ -6,8 +6,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class EngecoreApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(EngecoreApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(EngecoreApplication.class, args);
+    }
+
 
 }

@@ -36,7 +36,6 @@ public class ObrasEntity{
     @Enumerated(EnumType.STRING)
     private TipoObra tipo; // residencial, comercial, social, etc.
 
-    // Relacionamentos
     @ManyToOne
     @JoinColumn(name = "cliente_id")
     private ClienteEntity cliente;

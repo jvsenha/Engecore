@@ -211,7 +211,7 @@ public class ObraService {
 
     //Lista obras filtradas por programa social
     public List<ObrasDTO> listarObrasPorPrograma(ProgramaSocial programaSocial) {
-        return obrasRepository.findByProgamaSocial(programaSocial).stream().map(ObrasMapper::toDTO).collect(Collectors.toList());
+        return obrasRepository.findByProgramaSocial(programaSocial).stream().map(ObrasMapper::toDTO).collect(Collectors.toList());
     }
 
     //Valida documentação ou convênios necessários

@@ -9,9 +9,12 @@ import java.util.List;
 
 public interface ObrasRepository extends JpaRepository<ObrasEntity, Long> {
 
-    List<ObrasEntity> findByProgamaSocial(ProgramaSocial programaSocial);
-    List<ObrasEntity> findByCliente(Long id);
+    // Buscar por programa social
+    List<ObrasEntity> findByProgramaSocial(ProgramaSocial programaSocial);
 
+    // Buscar por cliente usando o id correto da superclasse UserEntity
+    List<ObrasEntity> findByClienteIdUsuario(Long idUsuario);
+
+    // Buscar com specification
     List<ObrasEntity> findAll(Specification<ObrasEntity> spec);
-
 }

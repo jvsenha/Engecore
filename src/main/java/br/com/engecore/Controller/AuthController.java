@@ -9,12 +9,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
-@RestController("/auth")
+@RestController
+@RequestMapping("/auth")
 public class AuthController {
 
     @Autowired
@@ -24,9 +22,7 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(
-            @RequestBody LoginRequest dto,
-            HttpServletResponse response) {
+    public ResponseEntity<ApiResponse<LoginResponse>> login(@RequestBody LoginRequest dto, HttpServletResponse response) {
 
         try {
             // Autentica e gera token
@@ -41,25 +37,27 @@ public class AuthController {
                     .sameSite("Strict")
                     .build();
 
-            // Adiciona o cookie na resposta
             response.addHeader("Set-Cookie", cookie.toString());
 
-            // Retorna dados do login
-            ApiResponse<LoginResponse> apiResponse = new ApiResponse<>(true, "Login realizado com sucesso", loginResponse);
-            return ResponseEntity.ok(apiResponse);
+            return ResponseEntity.ok(
+                    new ApiResponse<>(true, "Login realizado com sucesso", loginResponse)
+            );
 
         } catch (Exception e) {
-            ApiResponse<LoginResponse> apiResponse = new ApiResponse<>(false, e.getMessage(), null);
-            return ResponseEntity.badRequest().body(apiResponse);
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>(false, e.getMessage(), null));
         }
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<ApiResponse<Void>> logout(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.badRequest().body(new ApiResponse<>(false, "Token não fornecido", null));
+        }
+
         String token = authHeader.substring(7);
         tokenBlacklist.add(token);
-        return ResponseEntity.ok("Logout realizado com sucesso");
+
+        return ResponseEntity.ok(new ApiResponse<>(true, "Logout realizado com sucesso", null));
     }
-
-
 }

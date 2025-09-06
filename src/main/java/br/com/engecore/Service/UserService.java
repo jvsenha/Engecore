@@ -34,19 +34,25 @@ public class UserService {
 
     public LoginResponse autenticar(LoginRequest loginRequest) {
         UserEntity user = userRepository.findByEmail(loginRequest.getEmail())
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+                .orElseThrow(() -> new RuntimeException("Usuário ou senha inválidos"));
 
         if (!passwordEncoder.matches(loginRequest.getSenha(), user.getSenha())) {
-            throw new RuntimeException("Senha inválida");
+            throw new RuntimeException("Usuário ou senha inválidos");
         }
 
         if (user.getStatus() != Status.STATUS_ATIVO) {
-            throw new RuntimeException("Usuário inativo");
+            throw new RuntimeException("Usuário inativo"); // aqui pode manter específico
         }
 
         String token = jwtUtil.generateToken(user);
 
-        return new LoginResponse(token, user.getEmail(), user.getNome(), user.getRole().name(), user.getIdUsuario());
+        return new LoginResponse(
+                token,
+                user.getEmail(),
+                user.getNome(),
+                user.getRole().name(),
+                user.getIdUsuario()
+        );
     }
 
 
@@ -98,6 +104,7 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("Usuario não encontrado"));
         return user;
     }
+
 
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
     public List<UserEntity> listarTodos() {

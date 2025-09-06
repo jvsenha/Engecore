@@ -17,14 +17,14 @@ public class EstoqueEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idEstoque;
+    private Long id;
 
     private String nome; // Ex: "Estoque Obra 01", "Estoque Empresa"
 
     @Enumerated(EnumType.STRING)
     private TipoEstoque tipo; // OBRA ou EMPRESA
 
-    @OneToMany(mappedBy = "estoque")
-    private List<MaterialEntity> materiais;
+    @OneToMany(mappedBy = "estoque", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EstoqueMaterial> estoqueMateriais;
 
 }

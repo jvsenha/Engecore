@@ -6,6 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface MovimentacaoFinanceiraRepository extends JpaRepository<MovimentacaoFinanceiraEntity, Long> {
- List<MovimentacaoFinanceiraEntity> findByObra(Long id);
- List<MovimentacaoFinanceiraEntity> findByFuncionarioResponsavel(Long id);
+
+ // Buscar por ID da obra
+ List<MovimentacaoFinanceiraEntity> findByObraIdObra(Long idObra);
+
+ // Buscar por ID do funcionário responsável
+ List<MovimentacaoFinanceiraEntity> findByFuncionarioResponsavelIdUsuario(Long idUsuario);
 }

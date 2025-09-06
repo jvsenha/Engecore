@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface MovimentacaoEstoqueRepository extends JpaRepository<MovimentacaoEstoqueEntity, Long> {
-    List<MovimentacaoEstoqueEntity> findByFuncionarioResponsavel(Long id);
+    List<MovimentacaoEstoqueEntity> findByFuncionarioResponsavelIdUsuario(Long idUsuario);
 }
