@@ -2,13 +2,13 @@ package br.com.engecore.Service;
 
 import br.com.engecore.DTO.FuncionarioDTO;
 import br.com.engecore.Entity.FuncionarioEntity;
-import br.com.engecore.Entity.MovimentacaoEstoqueEntity;
-import br.com.engecore.Entity.MovimentacaoFinanceiraEntity;
+import br.com.engecore.Entity.MovEstoqueEntity;
+import br.com.engecore.Entity.MovFinanceiraEntity;
 import br.com.engecore.Enum.Status;
 import br.com.engecore.Mapper.UserMapper;
 import br.com.engecore.Repository.FuncionarioRepository;
-import br.com.engecore.Repository.MovimentacaoEstoqueRepository;
-import br.com.engecore.Repository.MovimentacaoFinanceiraRepository;
+import br.com.engecore.Repository.MovEstoqueRepository;
+import br.com.engecore.Repository.MovFinanceiraRepository;
 import br.com.engecore.Util.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,9 +25,9 @@ public class FuncionarioService {
     private FuncionarioRepository funcionarioRepository;
 
     @Autowired
-    private MovimentacaoFinanceiraRepository movimentacaoFinanceiraRepository;
+    private MovFinanceiraRepository movFinanceiraRepository;
     @Autowired
-    private MovimentacaoEstoqueRepository movimentacaoEstoqueRepository;
+    private MovEstoqueRepository movEstoqueRepository;
 
     @Autowired
     public PasswordEncoder passwordEncoder;
@@ -108,12 +108,26 @@ public class FuncionarioService {
     }
 
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
-    public List<MovimentacaoEstoqueEntity> historicoMovimentacoesEstoque(Long id) {
-        return movimentacaoEstoqueRepository.findByFuncionarioResponsavelIdUsuario(id);
+    public List<MovEstoqueEntity> historicoMovimentacoesEstoque(Long id) {
+        return movEstoqueRepository.findByFuncionarioResponsavelIdUsuario(id);
     }
 
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
-    public List<MovimentacaoFinanceiraEntity> historicoMovimentacoesFinanceira(Long id) {
-        return movimentacaoFinanceiraRepository.findByFuncionarioResponsavelIdUsuario(id);
+    public List<MovFinanceiraEntity> historicoMovimentacoesFinanceira(Long id) {
+        return movFinanceiraRepository.findByFuncionarioResponsavelIdUsuario(id);
     }
+
+    @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
+    public FuncionarioDTO buscarFuncionario(Long id) {
+        FuncionarioEntity funcionario = funcionarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Funcionario não encontrado"));
+
+        return UserMapper.toFuncionarioDTO(funcionario);
+    }
+
+    @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
+    public List<FuncionarioEntity> listar() {
+        return funcionarioRepository.findAll();
+    }
+
 }

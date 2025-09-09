@@ -1,27 +1,27 @@
 package br.com.engecore.Mapper;
 
-import br.com.engecore.DTO.MaterialDTO;
-import br.com.engecore.Entity.MaterialEntity;
+import br.com.engecore.DTO.InsumoDTO;
+import br.com.engecore.Entity.InsumoEntity;
 
 public class MaterialMapper {
-    public static MaterialEntity toEntity(MaterialDTO dto) {
+    public static InsumoEntity toEntity(InsumoDTO dto) {
         if (dto == null) {
             return null;
         }
 
-        MaterialEntity entity = new MaterialEntity();
+        InsumoEntity entity = new InsumoEntity();
         entity.setNome(dto.getNome());
         entity.setUnidade(dto.getUnidade());
         return entity;
     }
 
     // Entity -> DTO
-    public static MaterialDTO toDTO(MaterialEntity entity) {
+    public static InsumoDTO toDTO(InsumoEntity entity) {
         if (entity == null) {
             return null;
         }
 
-        MaterialDTO dto = new MaterialDTO();
+        InsumoDTO dto = new InsumoDTO();
         dto.setNome(entity.getNome());
         dto.setUnidade(entity.getUnidade());
         return dto;

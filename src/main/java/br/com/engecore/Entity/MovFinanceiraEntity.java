@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "movimentacao_financeira")
-public class MovimentacaoFinanceiraEntity {
+public class MovFinanceiraEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,8 +37,8 @@ public class MovimentacaoFinanceiraEntity {
     private ObrasEntity obra; // opcional, se a despesa ou receita for de uma obra específica
 
     @ManyToOne
-    @JoinColumn(name = "material_id")
-    private MaterialEntity material; // opcional, se a despesa for referente a um material
+    @JoinColumn(name = "insumo_id")
+    private InsumoEntity insumo; // opcional, se a despesa for referente a um insumo
 
     @ManyToOne
     @JoinColumn(name = "funcionario_id")

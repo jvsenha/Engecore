@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "movimentacao_estoque")
-public class MovimentacaoEstoqueEntity {
+public class MovEstoqueEntity {
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +22,7 @@ public class MovimentacaoEstoqueEntity {
         // Material movimentado
         @ManyToOne
         @JoinColumn(name = "material_id", nullable = false)
-        private MaterialEntity material;
+        private InsumoEntity insumo;
 
         // Estoque de origem (pode ser null se for ENTRADA)
         @ManyToOne

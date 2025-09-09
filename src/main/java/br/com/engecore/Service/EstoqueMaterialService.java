@@ -45,7 +45,7 @@ public class EstoqueMaterialService {
     }
 
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncAdm(authentication)")
-    public void deletarCliente(Long id) {
+    public void deletarEstoque(Long id) {
         estoqueMaterialRepository.deleteById(id);
     }
 

@@ -37,7 +37,7 @@ public class ClienteService {
 
 
     @Autowired
-    private MovimentacaoFinanceiraRepository movimentacaoFinanceiraRepository;
+    private MovFinanceiraRepository movFinanceiraRepository;
 
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
     public ClienteDTO cadastrar(ClienteDTO dto) {
@@ -191,12 +191,12 @@ public class ClienteService {
         BigDecimal totalGasto = BigDecimal.ZERO;
 
         for (ObrasEntity obra : cliente.getObras()) {
-            List<MovimentacaoFinanceiraEntity> movimentacoes =
-                    movimentacaoFinanceiraRepository.findByObraIdObra(obra.getIdObra());
+            List<MovFinanceiraEntity> movimentacoes =
+                    movFinanceiraRepository.findByObraIdObra(obra.getIdObra());
 
             BigDecimal somaObra = movimentacoes.stream()
                     .filter(mov -> mov.getTipo() == TipoMovFinanceiro.DESPESA)
-                    .map(MovimentacaoFinanceiraEntity::getValor)
+                    .map(MovFinanceiraEntity::getValor)
                     .reduce(BigDecimal.ZERO, BigDecimal::add);
 
             totalGasto = totalGasto.add(somaObra);

@@ -22,7 +22,7 @@ public class EstoqueMaterial {
 
     @ManyToOne
     @JoinColumn(name = "material_id", nullable = false)
-    private MaterialEntity material;
+    private InsumoEntity material;
 
     @Column(nullable = false)
     private float quantidadeAtual;
