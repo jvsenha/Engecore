@@ -8,6 +8,7 @@ import br.com.engecore.Enum.StatusConst;
 import br.com.engecore.Enum.TipoObra;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -33,10 +34,10 @@ public class ObrasDTO {
     private Integer unidadesConcluidas;      // unidades já concluídas
 
     // Informações financeiras
-    private Double valorTotal;               // valor total da obra
-    private Double valorLiberado;            // valor já liberado pelo financiamento ou convênio
-    private Double pagosFornecedores;        // valor pago a fornecedores
-    private Double custoPorUnidade;          // custo médio por unidade
+    private BigDecimal valorTotal;               // valor total da obra
+    private BigDecimal valorLiberado;            // valor já liberado pelo financiamento ou convênio
+    private BigDecimal pagosFornecedores;        // valor pago a fornecedores
+    private BigDecimal custoPorUnidade;          // custo médio por unidade
 
     // Programas sociais
     private FaixaRenda faixaRenda;           // faixa de renda se for obra social

@@ -118,7 +118,7 @@ public class FuncionarioService {
     }
 
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
-    public FuncionarioDTO buscarFuncionario(Long id) {
+    public FuncionarioDTO destalhesFuncionario(Long id) {
         FuncionarioEntity funcionario = funcionarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Funcionario não encontrado"));
 

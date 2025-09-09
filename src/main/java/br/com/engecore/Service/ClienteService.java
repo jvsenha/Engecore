@@ -180,6 +180,7 @@ public class ClienteService {
     public List<ObrasEntity> listarObras(Long id) {
         return obrasRepository.findByClienteIdUsuario(id);
     }
+
     public List<ClienteEntity> listar() {
         return clienteRepository.findAll();
     }

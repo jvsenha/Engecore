@@ -50,11 +50,11 @@ public class EstoqueMaterialService {
     }
 
 
-    public List<EstoqueMaterial> listarMateriais(){
+    public List<EstoqueMaterial> listar(){
         return estoqueMaterialRepository.findAll();
     }
 
-    public EstoqueMaterialResponse detalhesMaterial(Long idEstoque, Long idMaterial) {
+    public EstoqueMaterialResponse detalhesEstoqueMaterial(Long idEstoque, Long idMaterial) {
         EstoqueMaterial estoqueMaterial = buscarMaterial(idEstoque, idMaterial);
         return EstoqueMaterialMapper.toResponse(estoqueMaterial);
     }

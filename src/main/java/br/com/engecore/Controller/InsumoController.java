@@ -1,86 +1,61 @@
 package br.com.engecore.Controller;
 
 import br.com.engecore.DTO.ApiResponse;
-import br.com.engecore.DTO.ClienteDTO;
-import br.com.engecore.Entity.ClienteEntity;
-import br.com.engecore.Entity.ObrasEntity;
-import br.com.engecore.Service.ClienteService;
+import br.com.engecore.DTO.InsumoDTO;
+import br.com.engecore.Entity.InsumoEntity;
+import br.com.engecore.Service.InsumoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/cliente")
+@RequestMapping("/insumo")
 public class InsumoController {
     @Autowired
-    private ClienteService clienteService;
+    private InsumoService insumoService;
 
     @PostMapping("/cadastrar")
-    public ResponseEntity<ApiResponse<ClienteDTO>> cadastrarCliente(@RequestBody ClienteDTO dto) {
-        ClienteDTO cliente = clienteService.cadastrar(dto);
+    public ResponseEntity<ApiResponse<InsumoDTO>> cadastrarInsumo(@RequestBody InsumoDTO dto) {
+        InsumoDTO insumo = insumoService.cadastrar(dto);
         return ResponseEntity.ok(
-                new ApiResponse<>(true, "Cliente cadastrado com sucesso", cliente)
+                new ApiResponse<>(true, "Insumo cadastrado com sucesso", insumo)
         );
     }
 
     @PutMapping("/alterar/{id}")
-    public ResponseEntity<ApiResponse<ClienteDTO>> atualizarCliente(
+    public ResponseEntity<ApiResponse<InsumoDTO>> atualizarInsumo(
             @PathVariable Long id,
-            @RequestBody ClienteDTO dto
+            @RequestBody InsumoDTO dto
     ) {
-        ClienteDTO clienteAtualizado = clienteService.atualizarPorAdmFuncionario(id, dto);
+        InsumoDTO insumoAtualizado = insumoService.atualizarPorAdmFuncionario(id, dto);
         return ResponseEntity.ok(
-                new ApiResponse<>(true, "Cliente atualizado com sucesso", clienteAtualizado)
-        );
-    }
-
-    @PutMapping("/alterar/perfil")
-    public ResponseEntity<ApiResponse<ClienteDTO>> atualizarPerfil(@RequestBody ClienteDTO dto) {
-        ClienteDTO clienteAtualizado = clienteService.atualizarPerfilCliente(dto);
-        return ResponseEntity.ok(
-                new ApiResponse<>(true, "Perfil atualizado com sucesso", clienteAtualizado)
+                new ApiResponse<>(true, "Insumo atualizado com sucesso", insumoAtualizado)
         );
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<ClienteDTO>> buscarCliente(@PathVariable Long id) {
-        ClienteDTO cliente = clienteService.buscarCliente(id);
+    public ResponseEntity<ApiResponse<InsumoDTO>> detalheInsumo(@PathVariable Long id) {
+        InsumoDTO insumo = insumoService.detalhesInsumo(id);
         return ResponseEntity.ok(
-                new ApiResponse<>(true, "Cliente encontrado", cliente)
+                new ApiResponse<>(true, "Insumo encontrado", insumo)
         );
     }
     @GetMapping("/listar")
-    public ResponseEntity<ApiResponse<List<ClienteEntity>>> listar() {
-        List<ClienteEntity> clientes = clienteService.listar();
+    public ResponseEntity<ApiResponse<List<InsumoEntity>>> listar() {
+        List<InsumoEntity> insumos = insumoService.listar();
         return ResponseEntity.ok(
-                new ApiResponse<>(true, "Cliente encontrado", clientes)
+                new ApiResponse<>(true, "Insumo encontrado", insumos)
         );
     }
 
     @DeleteMapping("/deletar/{id}")
-    public ResponseEntity<ApiResponse<Void>> deletarCliente(@PathVariable Long id) {
-        clienteService.deletarCliente(id);
+    public ResponseEntity<ApiResponse<Void>> deletarInsumo(@PathVariable Long id) {
+        insumoService.deletarInsumo(id);
         return ResponseEntity.ok(
-                new ApiResponse<>(true, "Cliente deletado com sucesso", null)
+                new ApiResponse<>(true, "Insumo deletado com sucesso", null)
         );
     }
 
-    @GetMapping("/{id}/obras")
-    public ResponseEntity<ApiResponse<List<ObrasEntity>>> listarObras(@PathVariable Long id) {
-        List<ObrasEntity> obras = clienteService.listarObras(id);
-        return ResponseEntity.ok(
-                new ApiResponse<>(true, "Obras do cliente listadas com sucesso", obras)
-        );
-    }
-
-    @GetMapping("/{id}/total-gasto")
-    public ResponseEntity<ApiResponse<BigDecimal>> calcularTotalGasto(@PathVariable Long id) {
-        BigDecimal total = clienteService.calcularTotalGastoCliente(id);
-        return ResponseEntity.ok(
-                new ApiResponse<>(true, "Total gasto do cliente calculado", total)
-        );
-    }
 }

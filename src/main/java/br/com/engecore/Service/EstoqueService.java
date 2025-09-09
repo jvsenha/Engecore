@@ -46,7 +46,7 @@ public class EstoqueService {
     }
 
 
-    public List<EstoqueEntity> listarEstoque(){
+    public List<EstoqueEntity> listar(){
         return estoqueRepository.findAll();
     }
 

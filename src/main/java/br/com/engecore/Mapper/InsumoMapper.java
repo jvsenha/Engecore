@@ -3,7 +3,7 @@ package br.com.engecore.Mapper;
 import br.com.engecore.DTO.InsumoDTO;
 import br.com.engecore.Entity.InsumoEntity;
 
-public class MaterialMapper {
+public class InsumoMapper {
     public static InsumoEntity toEntity(InsumoDTO dto) {
         if (dto == null) {
             return null;

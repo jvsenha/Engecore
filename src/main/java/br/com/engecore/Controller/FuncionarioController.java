@@ -47,7 +47,7 @@ public class FuncionarioController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<FuncionarioDTO>> buscarFuncionario(@PathVariable Long id) {
-        FuncionarioDTO funcionario = funcionarioService.buscarFuncionario(id);
+        FuncionarioDTO funcionario = funcionarioService.destalhesFuncionario(id);
         return ResponseEntity.ok(
                 new ApiResponse<>(true, "Funcionario encontrado", funcionario)
         );
