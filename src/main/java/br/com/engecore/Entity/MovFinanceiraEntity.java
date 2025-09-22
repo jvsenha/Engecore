@@ -19,7 +19,7 @@ public class MovFinanceiraEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idMovimento;
+    private Long id;
 
     @Column(nullable = false)
     private BigDecimal valor;

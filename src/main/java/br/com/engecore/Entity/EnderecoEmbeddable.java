@@ -1,7 +1,6 @@
 package br.com.engecore.Entity;
 
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
@@ -12,7 +11,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "endereco")
 public class EnderecoEmbeddable {
     @NotBlank(message = "Rua é obrigatória")
     private String rua;

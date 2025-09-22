@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -17,7 +18,7 @@ public class MovEstoqueEntity {
 
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private Long idMovimentacao;
+        private Long id;
 
         // Material movimentado
         @ManyToOne
@@ -36,7 +37,7 @@ public class MovEstoqueEntity {
 
         // Quantidade movimentada
         @Column(nullable = false)
-        private float quantidade;
+        private BigDecimal quantidade;
 
         // Tipo da movimentação: ENTRADA, SAIDA ou TRANSFERENCIA
         @Enumerated(EnumType.STRING)

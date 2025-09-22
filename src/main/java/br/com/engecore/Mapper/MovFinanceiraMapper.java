@@ -2,7 +2,9 @@ package br.com.engecore.Mapper;
 
 import br.com.engecore.DTO.MovFinanceiraDTO;
 import br.com.engecore.Entity.MovFinanceiraEntity;
+import org.springframework.stereotype.Component;
 
+@Component
 public class MovFinanceiraMapper {
 
     // Entity → DTO

@@ -9,18 +9,15 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class MovEstoqueDTO {
+@NoArgsConstructor
+public class MovEstoqueResponse {
     private Long id;
-    private TipoMov tipoMov;
-    private Long insumoId;
-    private Long estoqueOrigemId;
-    private Long estoqueDestinoId;
+    private String material;
+    private Long estoqueOrigem;
+    private Long estoqueDestino;
     private BigDecimal quantidade;
-    private BigDecimal valorUnitario;
-    private String observacao;
+    private TipoMov tipoMov;
     private LocalDate dataMovimentacao;
-    private Long funcionarioId;
-    private MaterialEstoqueRequest materialEstoque;
+    private Long funcionarioResponsavel;
 }

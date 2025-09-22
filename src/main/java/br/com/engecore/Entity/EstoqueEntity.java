@@ -1,6 +1,7 @@
 package br.com.engecore.Entity;
 
 import br.com.engecore.Enum.TipoEstoque;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,6 +26,10 @@ public class EstoqueEntity {
     private TipoEstoque tipo; // OBRA ou EMPRESA
 
     @OneToMany(mappedBy = "estoque", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<EstoqueMaterial> estoqueMateriais;
+    @JsonBackReference
+    private List<MaterialEstoque> estoqueMateriais;
 
+    @OneToOne
+    @JoinColumn(name = "obra_id")
+    private ObrasEntity obra;
 }

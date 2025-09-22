@@ -21,7 +21,7 @@ public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long idUsuario;
+    private Long id;
 
     @NotBlank(message = "Nome é obrigatório")
     @Column( name="nome", nullable = false )

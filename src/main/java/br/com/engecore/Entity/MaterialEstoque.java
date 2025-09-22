@@ -1,16 +1,19 @@
 package br.com.engecore.Entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "estoque_material")
-public class EstoqueMaterial {
+@Table(name = "material_estoque")
+public class MaterialEstoque {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,22 +21,26 @@ public class EstoqueMaterial {
 
     @ManyToOne
     @JoinColumn(name = "estoque_id", nullable = false)
+    @JsonManagedReference
     private EstoqueEntity estoque;
 
     @ManyToOne
     @JoinColumn(name = "material_id", nullable = false)
+    @JsonManagedReference
     private InsumoEntity material;
 
     @Column(nullable = false)
-    private float quantidadeAtual;
+    private BigDecimal quantidadeAtual;
 
     @Column(nullable = false)
-    private float quantidadeMinima;
+    private BigDecimal quantidadeMinima;
 
-    private Float quantidadeMaxima;
+    @Column(nullable = false)
+    private BigDecimal valor;
 
-    // 🔹 Regra de negócio de estoque crítico
+    private BigDecimal quantidadeMaxima;
+
     public boolean isEstoqueCritico() {
-        return quantidadeAtual <= quantidadeMinima;
+        return quantidadeAtual.compareTo(quantidadeMinima) <= 0;
     }
 }

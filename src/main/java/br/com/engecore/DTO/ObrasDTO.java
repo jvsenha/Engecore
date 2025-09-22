@@ -1,7 +1,6 @@
 package br.com.engecore.DTO;
 
 import br.com.engecore.Entity.EnderecoEmbeddable;
-import br.com.engecore.Entity.FasesEntity;
 import br.com.engecore.Enum.FaixaRenda;
 import br.com.engecore.Enum.ProgramaSocial;
 import br.com.engecore.Enum.StatusConst;
@@ -50,7 +49,7 @@ public class ObrasDTO {
     private LocalDate dataConclusaoReal;
 
     // Blocos ou fases da obra
-    private List<FasesEntity> fases;
+    private List<FasesDTO> fases;
 
 
 }

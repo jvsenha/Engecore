@@ -1,6 +1,7 @@
 package br.com.engecore.Controller;
 
 import br.com.engecore.DTO.ApiResponse;
+import br.com.engecore.DTO.SenhaDTO;
 import br.com.engecore.DTO.UserDTO;
 import br.com.engecore.Entity.UserEntity;
 import br.com.engecore.Enum.Role;
@@ -20,7 +21,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    // 🔹 Cadastrar usuário
+
+
+
     @PostMapping("/cadastrar")
     public ResponseEntity<ApiResponse<UserDTO>> cadastrar(@RequestBody UserDTO dto) {
         try {
@@ -31,9 +34,8 @@ public class UserController {
         }
     }
 
-    // 🔹 Atualizar usuário (ADM ou FUNC.ADM)
-    @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<UserDTO>> atualizar(@PathVariable Long id, @RequestBody UserDTO dto) {
+    @PutMapping("/alterar/{id}")
+    public ResponseEntity<ApiResponse<UserDTO>> atualizarUser(@PathVariable Long id, @RequestBody UserDTO dto) {
         try {
             UserDTO user = userService.atualizar(id, dto);
             return ResponseEntity.ok(new ApiResponse<>(true, "Usuário atualizado com sucesso", user));
@@ -42,19 +44,17 @@ public class UserController {
         }
     }
 
-    // 🔹 Alterar senha (ADM ou FUNC.ADM)
     @PutMapping("/{id}/alterar-senha")
-    public ResponseEntity<ApiResponse<Void>> alterarSenha(@PathVariable Long id, @RequestParam String novaSenha) {
+    public ResponseEntity<ApiResponse<String>> alterarSenha(@PathVariable Long id, @RequestBody SenhaDTO dto) {
         try {
-            userService.alterarSenhaAdmFunc(id, novaSenha);
-            return ResponseEntity.ok(new ApiResponse<>(true, "Senha alterada com sucesso", null));
+            userService.alterarSenhaAdmFunc(id, dto.getNovaSenha());
+            return ResponseEntity.ok(new ApiResponse<>(true, "Senha alterada com sucesso", dto.getNovaSenha()));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(new ApiResponse<>(false, e.getMessage(), null));
         }
     }
 
-    // 🔹 Deletar usuário (apenas ADM)
-    @DeleteMapping("/{id}")
+    @DeleteMapping("deletar/{id}")
     public ResponseEntity<ApiResponse<Void>> deletar(@PathVariable Long id) {
         try {
             userService.deletarUsuario(id);
@@ -64,7 +64,7 @@ public class UserController {
         }
     }
 
-    // 🔹 Buscar usuário por ID
+
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UserEntity>> buscarPorId(@PathVariable Long id) {
         try {
@@ -75,8 +75,7 @@ public class UserController {
         }
     }
 
-    // 🔹 Listar todos os usuários
-    @GetMapping
+    @GetMapping("/listar")
     public ResponseEntity<ApiResponse<List<UserDTO>>> listarTodos() {
         List<UserEntity> usuarios = userService.listarTodos();
         List<UserDTO> dtoList = usuarios.stream()
@@ -88,26 +87,26 @@ public class UserController {
         );
     }
 
-    // 🔹 Listar usuários por Role
+
     @GetMapping("/role/{role}")
     public ResponseEntity<ApiResponse<List<UserEntity>>> listarPorRole(@PathVariable Role role) {
         return ResponseEntity.ok(new ApiResponse<>(true, "Lista de usuários por role", userService.listarPorRole(role)));
     }
 
-    // 🔹 Listar ativos
-    @GetMapping("/ativos")
+
+    @GetMapping("listar/ativos")
     public ResponseEntity<ApiResponse<List<UserEntity>>> listarAtivos() {
         return ResponseEntity.ok(new ApiResponse<>(true, "Lista de usuários ativos", userService.listarAtivos()));
     }
 
-    // 🔹 Listar inativos
-    @GetMapping("/inativos")
+
+    @GetMapping("listar/inativos")
     public ResponseEntity<ApiResponse<List<UserEntity>>> listarInativos() {
         return ResponseEntity.ok(new ApiResponse<>(true, "Lista de usuários inativos", userService.listarInativos()));
     }
 
-    // 🔹 Alternar status (ativo <-> inativo)
-    @PutMapping("/{id}/alternar-status")
+
+    @PutMapping("/{id}/alterar-status")
     public ResponseEntity<ApiResponse<Status>> alternarStatus(@PathVariable Long id) {
         try {
             Status status = userService.alternarStatus(id);
