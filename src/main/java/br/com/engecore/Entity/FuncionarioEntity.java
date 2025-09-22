@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -19,7 +20,7 @@ public class FuncionarioEntity extends UserEntity {
     private String cargo;
 
     @Column(name = "salario", nullable = false)
-    private Float salario;
+    private BigDecimal salario;
 
     @Column(name = "dataAdmissao", nullable = false)
     private LocalDate dataAdmissao;

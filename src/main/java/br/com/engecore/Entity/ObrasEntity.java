@@ -5,6 +5,7 @@ import br.com.engecore.Enum.ProgramaSocial;
 import br.com.engecore.Enum.StatusConst;
 import br.com.engecore.Enum.TipoObra;
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,7 +24,7 @@ public class ObrasEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idObra;
+    private Long id;
 
     // Informações básicas da obra
     private String nomeObra;
@@ -70,13 +71,14 @@ public class ObrasEntity{
     private LocalDate dataConclusaoReal;
 
     // Blocos ou fases da obra
-    @ElementCollection
-    @CollectionTable(name = "obras_fases", joinColumns = @JoinColumn(name = "obra_id"))
-    @Column(name = "fase")
+
+
+    @OneToMany(mappedBy = "obra", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<FasesEntity> fases;
 
-
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "estoque_id")
-    private EstoqueEntity estoque; // Estoque da obra
+    @JsonManagedReference
+    private EstoqueEntity estoque;
 }

@@ -4,16 +4,14 @@ import br.com.engecore.DTO.LoginRequest;
 import br.com.engecore.DTO.LoginResponse;
 import br.com.engecore.DTO.UserDTO;
 import br.com.engecore.Entity.UserEntity;
-import br.com.engecore.Entity.UsuarioFisico;
-import br.com.engecore.Entity.UsuarioJuridico;
 import br.com.engecore.Enum.Role;
 import br.com.engecore.Enum.Status;
-import br.com.engecore.Enum.TipoPessoa;
 import br.com.engecore.Mapper.UserMapper;
 import br.com.engecore.Repository.UserRepository;
 import br.com.engecore.Repository.UsuarioFisicoRepository;
 import br.com.engecore.Repository.UsuarioJuridicoRepository;
 import br.com.engecore.Util.JwtUtil;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -61,10 +59,10 @@ public class UserService {
                 user.getEmail(),
                 user.getNome(),
                 user.getRole().name(),
-                user.getIdUsuario()
+                user.getId()
         );
     }
-
+    @Transactional
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncAdm(authentication)")
     public UserDTO cadastrar(UserDTO dto) {
         UserEntity user = new UserEntity();
@@ -78,26 +76,9 @@ public class UserService {
 
         userRepository.save(user);
 
-        if (dto.getTipoPessoa() == TipoPessoa.FISICA && dto.getCpf() != null) {
-            UsuarioFisico fisico = new UsuarioFisico();
-            fisico.setUsuario(user);
-            fisico.setCpf(dto.getCpf());
-            fisico.setRg(dto.getRg());
-            fisico.setDataNascimento(dto.getDataNascimento());
-            usuarioFisicoRepository.save(fisico);
-        } else if (dto.getTipoPessoa() == TipoPessoa.JURIDICA && dto.getCnpj() != null) {
-            UsuarioJuridico juridico = new UsuarioJuridico();
-            juridico.setUsuario(user);
-            juridico.setCnpj(dto.getCnpj());
-            juridico.setRazaoSocial(dto.getRazaoSocial());
-            juridico.setNomeFantasia(dto.getNomeFantasia());
-            juridico.setInscricaoEstadual(dto.getInscricaoEstadual());
-            usuarioJuridicoRepository.save(juridico);
-        }
-
         return UserMapper.toUserDTO(user);
     }
-
+    @Transactional
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncAdm(authentication)")
     public UserDTO atualizar(Long id, UserDTO dto) {
         UserEntity user = userRepository.findById(id)
@@ -114,36 +95,16 @@ public class UserService {
         user.setTipoPessoa(dto.getTipoPessoa());
 
         userRepository.save(user);
-
-        if (dto.getTipoPessoa() == TipoPessoa.FISICA) {
-            UsuarioFisico fisico = usuarioFisicoRepository.findById(user.getIdUsuario())
-                    .orElse(new UsuarioFisico());
-            fisico.setUsuario(user);
-            fisico.setCpf(dto.getCpf());
-            fisico.setRg(dto.getRg());
-            fisico.setDataNascimento(dto.getDataNascimento());
-            usuarioFisicoRepository.save(fisico);
-        } else if (dto.getTipoPessoa() == TipoPessoa.JURIDICA) {
-            UsuarioJuridico juridico = usuarioJuridicoRepository.findById(user.getIdUsuario())
-                    .orElse(new UsuarioJuridico());
-            juridico.setUsuario(user);
-            juridico.setCnpj(dto.getCnpj());
-            juridico.setRazaoSocial(dto.getRazaoSocial());
-            juridico.setNomeFantasia(dto.getNomeFantasia());
-            juridico.setInscricaoEstadual(dto.getInscricaoEstadual());
-            usuarioJuridicoRepository.save(juridico);
-        }
-
         return UserMapper.toUserDTO(user);
     }
-
+    @Transactional
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncAdm(authentication)")
     public void alterarSenhaAdmFunc(Long id, String novaSenha) {
         UserEntity user = buscarUsuario(id);
         user.setSenha(passwordEncoder.encode(novaSenha));
         userRepository.save(user);
     }
-
+    @Transactional
     @PreAuthorize("@securityService.isAdmin(authentication)")
     public void deletarUsuario(Long id) {
         userRepository.deleteById(id);
@@ -175,6 +136,7 @@ public class UserService {
         return userRepository.findByStatus(Status.STATUS_INATIVO);
     }
 
+    @Transactional
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
     public Status alternarStatus(Long id) {
         UserEntity user = userRepository.findById(id)

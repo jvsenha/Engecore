@@ -1,5 +1,6 @@
 package br.com.engecore.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,6 +21,11 @@ public class FasesEntity {
 
     @Column(nullable = false, length = 100)
     private String nome;
+
+    @ManyToOne
+    @JoinColumn(name = "obra_id", nullable = false)
+    @JsonBackReference
+    private ObrasEntity obra;
 
     @Column(name = "data_inicio", nullable = false)
     private LocalDate dataInicio;

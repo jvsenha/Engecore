@@ -19,7 +19,7 @@ public class MovFinanceiraEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idMovimento;
+    private Long id;
 
     @Column(nullable = false)
     private BigDecimal valor;
@@ -49,4 +49,8 @@ public class MovFinanceiraEntity {
 
     @Column(length = 255)
     private String descricao; // descrição da movimentação
+
+    @ManyToOne
+    @JoinColumn(name = "cliente_id") // Novo campo
+    private ClienteEntity cliente; // Novo campo
 }

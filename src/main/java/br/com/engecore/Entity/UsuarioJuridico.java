@@ -14,11 +14,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UsuarioJuridico {
     @Id
-    private Long idUsuario;
+    private Long id;
 
     @OneToOne
     @MapsId
-    @JoinColumn(name = "idUsuario")
+    @JoinColumn(name = "id")
     @JsonBackReference
     private UserEntity usuario;
 

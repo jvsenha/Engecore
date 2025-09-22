@@ -2,7 +2,6 @@ package br.com.engecore.Controller;
 
 import br.com.engecore.DTO.ApiResponse;
 import br.com.engecore.DTO.ClienteDTO;
-import br.com.engecore.Entity.ClienteEntity;
 import br.com.engecore.Entity.ObrasEntity;
 import br.com.engecore.Service.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,8 +52,8 @@ public class ClienteController {
         );
     }
     @GetMapping("/listar")
-    public ResponseEntity<ApiResponse<List<ClienteEntity>>> listar() {
-        List<ClienteEntity> clientes = clienteService.listar();
+    public ResponseEntity<ApiResponse<List<ClienteDTO>>> listar() {
+        List<ClienteDTO> clientes = clienteService.listar();
         return ResponseEntity.ok(
                 new ApiResponse<>(true, "Cliente encontrado", clientes)
         );

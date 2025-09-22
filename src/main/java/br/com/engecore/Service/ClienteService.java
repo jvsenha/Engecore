@@ -7,6 +7,7 @@ import br.com.engecore.Enum.TipoMovFinanceiro;
 import br.com.engecore.Enum.TipoPessoa;
 import br.com.engecore.Mapper.UserMapper;
 import br.com.engecore.Repository.*;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -35,10 +36,16 @@ public class ClienteService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private UserRepository userRepository;
 
     @Autowired
     private MovFinanceiraRepository movFinanceiraRepository;
 
+    @Autowired
+    private UserMapper userMapper;
+
+    @Transactional
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
     public ClienteDTO cadastrar(ClienteDTO dto) {
         ClienteEntity cliente = new ClienteEntity();
@@ -75,9 +82,10 @@ public class ClienteService {
             usuarioJuridicoRepository.save(juridico);
         }
 
-        return UserMapper.toClienteDTO(cliente);
+        return userMapper.toClienteDTO(cliente);
     }
 
+    @Transactional
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
     public ClienteDTO atualizarPorAdmFuncionario(Long id, ClienteDTO dto) {
         ClienteEntity cliente = clienteRepository.findById(id)
@@ -102,7 +110,7 @@ public class ClienteService {
         clienteRepository.save(cliente);
 
         if (dto.getTipoPessoa() == TipoPessoa.FISICA) {
-            UsuarioFisico fisico = usuarioFisicoRepository.findById(cliente.getIdUsuario())
+            UsuarioFisico fisico = usuarioFisicoRepository.findById(cliente.getId())
                     .orElse(new UsuarioFisico());
             fisico.setUsuario(cliente);
             fisico.setCpf(dto.getCpf());
@@ -110,7 +118,7 @@ public class ClienteService {
             fisico.setDataNascimento(dto.getDataNascimento());
             usuarioFisicoRepository.save(fisico);
         } else if (dto.getTipoPessoa() == TipoPessoa.JURIDICA) {
-            UsuarioJuridico juridico = usuarioJuridicoRepository.findById(cliente.getIdUsuario())
+            UsuarioJuridico juridico = usuarioJuridicoRepository.findById(cliente.getId())
                     .orElse(new UsuarioJuridico());
             juridico.setUsuario(cliente);
             juridico.setCnpj(dto.getCnpj());
@@ -120,9 +128,10 @@ public class ClienteService {
             usuarioJuridicoRepository.save(juridico);
         }
 
-        return UserMapper.toClienteDTO(cliente);
+        return userMapper.toClienteDTO(cliente);
     }
 
+    @Transactional
     @PreAuthorize("@securityService.isCliente(authentication)")
     public ClienteDTO atualizarPerfilCliente(ClienteDTO dto) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -143,7 +152,7 @@ public class ClienteService {
         clienteRepository.save(cliente);
 
         if (cliente.getTipoPessoa() == TipoPessoa.FISICA) {
-            UsuarioFisico fisico = usuarioFisicoRepository.findById(cliente.getIdUsuario())
+            UsuarioFisico fisico = usuarioFisicoRepository.findById(cliente.getId())
                     .orElse(new UsuarioFisico());
             fisico.setUsuario(cliente);
             fisico.setCpf(dto.getCpf());
@@ -151,7 +160,7 @@ public class ClienteService {
             fisico.setDataNascimento(dto.getDataNascimento());
             usuarioFisicoRepository.save(fisico);
         } else if (cliente.getTipoPessoa() == TipoPessoa.JURIDICA) {
-            UsuarioJuridico juridico = usuarioJuridicoRepository.findById(cliente.getIdUsuario())
+            UsuarioJuridico juridico = usuarioJuridicoRepository.findById(cliente.getId())
                     .orElse(new UsuarioJuridico());
             juridico.setUsuario(cliente);
             juridico.setCnpj(dto.getCnpj());
@@ -161,30 +170,41 @@ public class ClienteService {
             usuarioJuridicoRepository.save(juridico);
         }
 
-        return UserMapper.toClienteDTO(cliente);
+        return userMapper.toClienteDTO(cliente);
     }
 
+    @Transactional
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
     public ClienteDTO buscarCliente(Long id) {
         ClienteEntity cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
-        return UserMapper.toClienteDTO(cliente);
+        return userMapper.toClienteDTO(cliente);
     }
 
+    @Transactional
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncAdm(authentication)")
     public void deletarCliente(Long id) {
+        usuarioFisicoRepository.deleteById(id);
+        usuarioJuridicoRepository.deleteById(id);
         clienteRepository.deleteById(id);
+        userRepository.deleteById(id);
     }
 
+    @Transactional
     public List<ObrasEntity> listarObras(Long id) {
-        return obrasRepository.findByClienteIdUsuario(id);
+        return obrasRepository.findByClienteId(id);
     }
 
-    public List<ClienteEntity> listar() {
-        return clienteRepository.findAll();
+    @Transactional
+    public List<ClienteDTO> listar() {
+        List<ClienteEntity> clientes = clienteRepository.findAll();
+        return clientes.stream()
+                .map(userMapper::toClienteDTO)
+                .toList(); // converte cada ClienteEntity em ClienteDTO
     }
 
+    @Transactional
     public BigDecimal calcularTotalGastoCliente(Long id) {
         ClienteEntity cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado!"));
@@ -193,7 +213,7 @@ public class ClienteService {
 
         for (ObrasEntity obra : cliente.getObras()) {
             List<MovFinanceiraEntity> movimentacoes =
-                    movFinanceiraRepository.findByObraIdObra(obra.getIdObra());
+                    movFinanceiraRepository.findByObraId(obra.getId());
 
             BigDecimal somaObra = movimentacoes.stream()
                     .filter(mov -> mov.getTipo() == TipoMovFinanceiro.DESPESA)
