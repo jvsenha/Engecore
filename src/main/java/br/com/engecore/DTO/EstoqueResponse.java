@@ -10,9 +10,9 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EstoqueDTO {
-    private Long obra;
+public class EstoqueResponse {
+    private String nomeObra;
     private String nome;
     private TipoEstoque tipo;
-    private List<MaterialEstoqueRequest> estoqueMateriais;
+    private List<String> estoqueMateriais;
 }

@@ -71,7 +71,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             );
 
                     authToken.setDetails(new JwtAuthenticationDetails(
-                            user.getIdUsuario(),
+                            user.getId(),
                             user.getEmail(),
                             user.getRole().name()
                     ));

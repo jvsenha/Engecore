@@ -15,18 +15,10 @@ import java.util.List;
 @Table(name = "cliente")
 public class ClienteEntity extends UserEntity {
 
-    @Column(name = "endereco", nullable = false)
+    @Embedded
     private EnderecoEmbeddable endereco;
 
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<ObrasEntity> obras;
-
-    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
-    private UsuarioFisico usuarioFisico;
-
-    @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonManagedReference
-    private UsuarioJuridico usuarioJuridico;
 }

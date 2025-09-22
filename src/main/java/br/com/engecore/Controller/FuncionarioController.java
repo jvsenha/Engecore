@@ -2,7 +2,7 @@ package br.com.engecore.Controller;
 
 import br.com.engecore.DTO.ApiResponse;
 import br.com.engecore.DTO.FuncionarioDTO;
-import br.com.engecore.Entity.FuncionarioEntity;
+import br.com.engecore.DTO.FuncionarioResponse;
 import br.com.engecore.Entity.MovEstoqueEntity;
 import br.com.engecore.Entity.MovFinanceiraEntity;
 import br.com.engecore.Service.FuncionarioService;
@@ -47,19 +47,20 @@ public class FuncionarioController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<FuncionarioDTO>> buscarFuncionario(@PathVariable Long id) {
-        FuncionarioDTO funcionario = funcionarioService.buscarFuncionario(id);
+        FuncionarioDTO funcionario = funcionarioService.detalhesFuncionario(id);
         return ResponseEntity.ok(
                 new ApiResponse<>(true, "Funcionario encontrado", funcionario)
         );
     }
     @GetMapping("/listar")
-    public ResponseEntity<ApiResponse<List<FuncionarioEntity>>> listar() {
-        List<FuncionarioEntity> funcionarios = funcionarioService.listar();
+    public ResponseEntity<ApiResponse<List<FuncionarioResponse>>> listar() {
+        List<FuncionarioResponse> funcionarios = funcionarioService.listar();
         return ResponseEntity.ok(
                 new ApiResponse<>(true, "Funcionario encontrado", funcionarios)
         );
     }
-    @GetMapping("/listar/estoque/{id}")
+
+    @GetMapping("/listar/movestoque/{id}")
     public ResponseEntity<ApiResponse<List<MovEstoqueEntity>>> listarMovEst(@PathVariable Long id) {
         List<MovEstoqueEntity> mov = funcionarioService.historicoMovimentacoesEstoque(id);
         return ResponseEntity.ok(
@@ -67,7 +68,7 @@ public class FuncionarioController {
         );
     }
 
-    @GetMapping("/listar/financeiro/{id}")
+    @GetMapping("/listar/movfinanceiro/{id}")
     public ResponseEntity<ApiResponse<List<MovFinanceiraEntity>>> listarMovFin(@PathVariable Long id) {
         List<MovFinanceiraEntity> mov = funcionarioService.historicoMovimentacoesFinanceira(id);
         return ResponseEntity.ok(

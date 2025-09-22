@@ -1,6 +1,7 @@
 package br.com.engecore.Service;
 
 import br.com.engecore.DTO.ObrasDTO;
+import br.com.engecore.DTO.UnidadeObrasRequest;
 import br.com.engecore.Entity.ClienteEntity;
 import br.com.engecore.Entity.FuncionarioEntity;
 import br.com.engecore.Entity.ObrasEntity;
@@ -8,13 +9,17 @@ import br.com.engecore.Enum.FaixaRenda;
 import br.com.engecore.Enum.ProgramaSocial;
 import br.com.engecore.Enum.StatusConst;
 import br.com.engecore.Enum.TipoObra;
+import br.com.engecore.Mapper.FasesMapper;
 import br.com.engecore.Mapper.ObrasMapper;
 import br.com.engecore.Repository.ClienteRepository;
+import br.com.engecore.Repository.FasesRepository;
 import br.com.engecore.Repository.FuncionarioRepository;
 import br.com.engecore.Repository.ObrasRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -22,7 +27,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class ObraService {
+@Service
+public class ObrasService {
 
     @Autowired
     private ObrasRepository obrasRepository;
@@ -33,65 +39,62 @@ public class ObraService {
     @Autowired
     private FuncionarioRepository funcionarioRepository;
 
+    @Autowired
+    private FasesRepository fasesRepository;
+
+
+
     // ===================== FUNCIONALIDADES GERAIS =====================
 
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
-    public ObrasDTO cadastrarObra(ObrasDTO dto) {
+    @Transactional
+    public ObrasDTO cadastrar(ObrasDTO dto) {
         ObrasEntity obra = new ObrasEntity();
 
-        // Informações básicas
+        // Setar informações básicas...
         obra.setNomeObra(dto.getNomeObra());
         obra.setEndereco(dto.getEndereco());
         obra.setStatusConst(dto.getStatus());
         obra.setTipo(dto.getTipo());
 
-        // Cliente
+        // Cliente e responsável
         if (dto.getClienteId() != null) {
-            ClienteEntity cliente = clienteRepository.findById(dto.getClienteId())
-                    .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
-            obra.setCliente(cliente);
+            obra.setCliente(clienteRepository.findById(dto.getClienteId())
+                    .orElseThrow(() -> new RuntimeException("Cliente não encontrado")));
         }
 
-        // Responsável
         if (dto.getResponsavelId() != null) {
-            FuncionarioEntity responsavel = funcionarioRepository.findById(dto.getResponsavelId())
-                    .orElseThrow(() -> new RuntimeException("Responsável não encontrado"));
-            obra.setResponsavel(responsavel);
+            obra.setResponsavel(funcionarioRepository.findById(dto.getResponsavelId())
+                    .orElseThrow(() -> new RuntimeException("Responsável não encontrado")));
         }
 
-        // Dados de unidades
+        // Unidades, valores, datas...
         obra.setTotalUnidades(dto.getTotalUnidades());
         obra.setUnidadesConcluidas(dto.getUnidadesConcluidas());
-
-        // Informações financeiras
-        obra.setValorTotal(dto.getValorTotal() != null ? BigDecimal.valueOf(dto.getValorTotal()) : null);
-        obra.setValorLiberado(dto.getValorLiberado() != null ? BigDecimal.valueOf(dto.getValorLiberado()) : null);
-        obra.setPagosFornecedores(dto.getPagosFornecedores() != null ? BigDecimal.valueOf(dto.getPagosFornecedores()) : null);
-        obra.setCustoPorUnidade(dto.getCustoPorUnidade() != null ? BigDecimal.valueOf(dto.getCustoPorUnidade()) : null);
-
-        // Programas sociais
+        obra.setValorTotal(dto.getValorTotal());
+        obra.setValorLiberado(dto.getValorLiberado());
+        obra.setPagosFornecedores(dto.getPagosFornecedores());
+        obra.setCustoPorUnidade(dto.getCustoPorUnidade());
         obra.setFaixaRenda(dto.getFaixaRenda());
         obra.setDocumentacaoAprovada(dto.getDocumentacaoAprovada());
         obra.setProgramaSocial(dto.getProgramaSocial());
-
-        // Datas importantes
         obra.setDataInicio(dto.getDataInicio());
         obra.setDataPrevistaConclusao(dto.getDataPrevistaConclusao());
         obra.setDataConclusaoReal(dto.getDataConclusaoReal());
 
-        // Fases
-        obra.setFases(dto.getFases());
-
-        // Salvar no banco
-        obrasRepository.saveAndFlush(obra);
-
-
+        // Fases (importante: só setar, não salvar manualmente)
+        if (dto.getFases() != null) {
+            obra.setFases(FasesMapper.toEntityList(dto.getFases(), obra));
+        }
+        obrasRepository.save(obra); // Cascade salva as fases automaticamente
         return ObrasMapper.toDTO(obra);
     }
 
     //Atualiza obra existente (ADM ou FUNC)
-    public ObrasDTO atualizarObra(Long id, ObrasDTO dto) {
-        ObrasEntity obra = obrasRepository.findById(id).orElseThrow(() -> new RuntimeException("Obra não encontrada!"));
+    @Transactional
+    public ObrasDTO atualizarPorAdmFuncionario(Long id, ObrasDTO dto) {
+        ObrasEntity obra = obrasRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Obra não encontrada!"));
 
         // Informações básicas
         obra.setNomeObra(dto.getNomeObra());
@@ -117,34 +120,35 @@ public class ObraService {
         obra.setTotalUnidades(dto.getTotalUnidades());
         obra.setUnidadesConcluidas(dto.getUnidadesConcluidas());
 
-        // Informações financeiras
-        obra.setValorTotal(dto.getValorTotal() != null ? BigDecimal.valueOf(dto.getValorTotal()) : null);
-        obra.setValorLiberado(dto.getValorLiberado() != null ? BigDecimal.valueOf(dto.getValorLiberado()) : null);
-        obra.setPagosFornecedores(dto.getPagosFornecedores() != null ? BigDecimal.valueOf(dto.getPagosFornecedores()) : null);
-        obra.setCustoPorUnidade(dto.getCustoPorUnidade() != null ? BigDecimal.valueOf(dto.getCustoPorUnidade()) : null);
+        // Financeiro
+        obra.setValorTotal(dto.getValorTotal());
+        obra.setValorLiberado(dto.getValorLiberado());
+        obra.setPagosFornecedores(dto.getPagosFornecedores());
+        obra.setCustoPorUnidade(dto.getCustoPorUnidade());
 
         // Programas sociais
         obra.setFaixaRenda(dto.getFaixaRenda());
         obra.setDocumentacaoAprovada(dto.getDocumentacaoAprovada());
         obra.setProgramaSocial(dto.getProgramaSocial());
 
-        // Datas importantes
+        // Datas
         obra.setDataInicio(dto.getDataInicio());
         obra.setDataPrevistaConclusao(dto.getDataPrevistaConclusao());
         obra.setDataConclusaoReal(dto.getDataConclusaoReal());
 
-        // Fases
-        obra.setFases(dto.getFases());
+        // Fases: criar nova lista mutável
+        if (dto.getFases() != null) {
+            obra.getFases().clear(); // remove fases antigas
+            obra.getFases().addAll(FasesMapper.toEntityList(dto.getFases(), obra));
+        }
 
-        // Salvar no banco
         obrasRepository.saveAndFlush(obra);
-
-
         return ObrasMapper.toDTO(obra);
     }
 
+
     //Lista obras com filtros opcionais (status, cliente, responsável, tipo, faixa de renda)
-    public List<ObrasDTO> listarObras(Optional<StatusConst> status,
+    public List<ObrasDTO> listar(Optional<StatusConst> status,
                                       Optional<Long> clienteId,
                                       Optional<Long> responsavelId,
                                       Optional<TipoObra> tipo,
@@ -190,6 +194,7 @@ public class ObraService {
     }
 
     //Deleta uma obra (ADM ou FUNC responsável)
+    @Transactional
     public void deletarObra(Long id) {
         ObrasEntity obra = obrasRepository.findById(id).orElseThrow(() -> new RuntimeException("Obra não encontrada!"));
         obrasRepository.delete(obra);
@@ -198,11 +203,12 @@ public class ObraService {
     // ===================== FUNCIONALIDADES OBRAS SOCIAIS =====================//
 
     //Atualiza o número total de unidades e unidades concluídas
-    public ObrasDTO atualizarUnidades(Long id, Optional<Integer> totalUnidades, Optional<Integer> unidadesConcluidas) {
+    @Transactional
+    public ObrasDTO atualizarUnidades(Long id, UnidadeObrasRequest dto) {
         ObrasEntity obra = obrasRepository.findById(id).orElseThrow(() -> new RuntimeException("Obra não encontrada"));
 
-        totalUnidades.ifPresent(obra::setTotalUnidades);
-        unidadesConcluidas.ifPresent(obra::setUnidadesConcluidas);
+        dto.getTotalUnidades().ifPresent(obra::setTotalUnidades);
+        dto.getUnidadesConcluidas().ifPresent(obra::setUnidadesConcluidas);
 
         ObrasEntity obraAtualizada = obrasRepository.save(obra);
 
@@ -215,6 +221,7 @@ public class ObraService {
     }
 
     //Valida documentação ou convênios necessários
+    @Transactional
     public ObrasDTO validarDocumentacao(Long id, boolean aprovado) {
         ObrasEntity obra = buscarObras(id);
         obra.setDocumentacaoAprovada(aprovado);

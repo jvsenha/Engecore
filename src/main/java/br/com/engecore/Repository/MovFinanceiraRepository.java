@@ -8,8 +8,8 @@ import java.util.List;
 public interface MovFinanceiraRepository extends JpaRepository<MovFinanceiraEntity, Long> {
 
  // Buscar por ID da obra
- List<MovFinanceiraEntity> findByObraIdObra(Long idObra);
+ List<MovFinanceiraEntity> findByObraId(Long idObra);
 
  // Buscar por ID do funcionário responsável
- List<MovFinanceiraEntity> findByFuncionarioResponsavelIdUsuario(Long idUsuario);
+ List<MovFinanceiraEntity> findByFuncionarioResponsavelId(Long id);
 }

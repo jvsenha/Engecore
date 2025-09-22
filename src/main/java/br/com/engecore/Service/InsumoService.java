@@ -2,57 +2,65 @@ package br.com.engecore.Service;
 
 import br.com.engecore.DTO.InsumoDTO;
 import br.com.engecore.Entity.InsumoEntity;
-import br.com.engecore.Mapper.MaterialMapper;
+import br.com.engecore.Mapper.InsumoMapper;
 import br.com.engecore.Repository.InsumoRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class InsumoService {
 
     @Autowired
     private InsumoRepository insumoRepository;
 
+    @Transactional
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
     public InsumoDTO cadastrar(InsumoDTO dto) {
-        InsumoEntity material = new InsumoEntity();
+        InsumoEntity insumo = new InsumoEntity();
 
-        material.setNome(dto.getNome());
-        material.setUnidade(dto.getUnidade());
-        insumoRepository.save(material);
-        return MaterialMapper.toDTO(material);
+        insumo.setNome(dto.getNome());
+        insumo.setUnidade(dto.getUnidade());
+        insumoRepository.save(insumo);
+        return InsumoMapper.toDTO(insumo);
     }
 
-    // Atualização feita por ADM ou FUNC para qualquer material (precisa do ID)
+    @Transactional
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
     public InsumoDTO atualizarPorAdmFuncionario(Long id, InsumoDTO dto) {
-        InsumoEntity material = buscarMaterial(id);
+        InsumoEntity insumo = buscarInsumo(id);
 
-        material.setNome(dto.getNome());
-        material.setUnidade(dto.getUnidade());
+        insumo.setNome(dto.getNome());
+        insumo.setUnidade(dto.getUnidade());
 
-        insumoRepository.save(material);
-        return MaterialMapper.toDTO(material);
+        insumoRepository.save(insumo);
+        return InsumoMapper.toDTO(insumo);
     }
 
+    @Transactional
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncAdm(authentication)")
-    public void deletarCliente(Long id) {
+    public void deletarInsumo(Long id) {
         insumoRepository.deleteById(id);
     }
 
 
-    public List<InsumoEntity> listarMateriais(){
+    @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncAdm(authentication)")
+    public List<InsumoEntity> listar(){
         return insumoRepository.findAll();
     }
 
-    public InsumoDTO detalhesMaterial(Long id) {
-        InsumoEntity material = insumoRepository.findById(id).orElseThrow(() -> new RuntimeException("material não encontrada!"));
-        return MaterialMapper.toDTO(material);
+    @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncAdm(authentication)")
+    public InsumoDTO detalhesInsumo(Long id) {
+        InsumoEntity insumo = insumoRepository.findById(id).orElseThrow(() -> new RuntimeException("insumo não encontrada!"));
+        return InsumoMapper.toDTO(insumo);
     }
 
-    public InsumoEntity buscarMaterial(Long id) {
-        return insumoRepository.findById(id).orElseThrow(() -> new RuntimeException("material não encontrada"));
+    @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncAdm(authentication)")
+    public InsumoEntity buscarInsumo(Long id) {
+        return insumoRepository.findById(id).orElseThrow(() -> new RuntimeException("insumo não encontrada"));
     }
 
 

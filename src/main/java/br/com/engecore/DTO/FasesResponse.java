@@ -9,13 +9,14 @@ import java.time.LocalDate;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class FasesDTO {
+public class FasesResponse {
     private Long id;
     private String nome;
-    private Long obra;
+    private Long idobra;
     private LocalDate dataInicio;
     private LocalDate dataTermino;
     private Integer tempoEsperado;
     private Integer tempoLevado;
     private String descricao;
+
 }

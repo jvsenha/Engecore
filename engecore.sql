@@ -1,0 +1,1 @@
+INSERT INTO usuario (nome, email, senha, telefone, status, role) VALUES ( 'Admin', 'admin@engecore.com', '$2a$10$WqZC3D5CqAq8R5gL4sT8YeY/8Fv0TyoXNhcFOSeOBy6QORh1lOoZK', -- hash de "admin123" '(11) 99999-9999', 'STATUS_ATIVO', 'ROLE_ADMIN' );

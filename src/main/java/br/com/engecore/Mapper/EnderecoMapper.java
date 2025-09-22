@@ -2,7 +2,9 @@ package br.com.engecore.Mapper;
 
 import br.com.engecore.DTO.EnderecoDTO;
 import br.com.engecore.Entity.EnderecoEmbeddable;
+import org.springframework.stereotype.Component;
 
+@Component
 public class EnderecoMapper {
     public static EnderecoDTO toEnderecoDTO(EnderecoEmbeddable endereco) {
         if (endereco == null) return null;

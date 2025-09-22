@@ -17,11 +17,11 @@ import java.time.LocalDate;
 public class UsuarioFisico {
 
     @Id
-    private Long idUsuario; // mesmo id do usuário base
+    private Long id;
 
     @OneToOne
     @MapsId
-    @JoinColumn(name = "idUsuario")
+    @JoinColumn(name = "id")
     @JsonBackReference
     private UserEntity usuario;
 

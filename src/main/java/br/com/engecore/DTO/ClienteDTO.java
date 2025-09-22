@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ClienteDTO {
 
-    private Long idUsuario;
+    private Long id;
     private String nome;
     private String email;
     private String senha;
