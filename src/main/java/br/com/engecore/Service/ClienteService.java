@@ -197,6 +197,7 @@ public class ClienteService {
     }
 
     @Transactional
+  //  @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
     public List<ClienteDTO> listar() {
         List<ClienteEntity> clientes = clienteRepository.findAll();
         return clientes.stream()

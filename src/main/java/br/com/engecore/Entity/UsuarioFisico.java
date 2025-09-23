@@ -25,7 +25,7 @@ public class UsuarioFisico {
     @JsonBackReference
     private UserEntity usuario;
 
-    @Column(nullable = false, unique = true, length = 11)
+    @Column(nullable = false, unique = true, length = 15)
     @CpfCnpj
     private String cpf;
 
