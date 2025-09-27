@@ -9,7 +9,8 @@ public enum Role {
     ROLE_FUNC_GERENTE("FUNC"),
     ROLE_FUNC_GESTOR("FUNC"),
     ROLE_FUNC_RH("FUNC"),
-    ROLE_FUNC_CONST("FUNC");
+    ROLE_FUNC_CONST("FUNC"),
+    ROLE_FORNECEDOR(null);
 
     private final String categoria;
 
