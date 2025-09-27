@@ -19,6 +19,12 @@ public class InsumoEntity {
     @Column(name = "nome", nullable = false)
     private String nome;
 
+    @Column(name = "marca", nullable = false)
+    private String marca;
+
+    @Column(name = "modelo", nullable = false)
+    private String modelo;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "unidade", nullable = false)
     private Unidade unidade;
