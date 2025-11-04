@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <title>Relatório Curva ABC de Insumos</title>
+    <style>
+        /* Estilos do mockup 'relatorios.html' */
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11pt; color: #333; }
+        .page { width: 100%; margin: 0; padding: 0; }
+        .header { border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 30px; }
+        .header h1 { font-size: 24pt; font-weight: bold; margin: 0; }
+        .header .subtitle { font-size: 11pt; color: #555; }
+        .header .logo-date { float: right; text-align: right; }
+        .header .logo { font-size: 14pt; font-weight: bold; }
+        .header .date { font-size: 10pt; color: #555; }
+
+        .section-title { font-size: 10pt; font-weight: bold; text-transform: uppercase; color: #555; margin-bottom: 8px; margin-top: 20px; }
+
+        /* Gráfico */
+        .chart { border: 1px solid #ccc; border-radius: 8px; padding: 16px; }
+        /* Ajuste para compatibilidade com openhtmltopdf */
+        .chart-row { display: -fs-box; width: 100%; padding-top: 4px; padding-bottom: 4px; }
+        .chart-label { width: 30%; font-size: 10pt; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chart-bar-bg { width: 50%; background-color: #f4f4f4; border-radius: 4px; height: 16px; margin-top: 2px; }
+        .chart-bar { background-color: #000; height: 16px; border-radius: 4px; }
+        .chart-value { width: 20%; font-size: 10pt; font-weight: bold; text-align: right; }
+
+        /* Tabela */
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            background-color: #f4f4f4;
+            border-bottom: 2px solid #333;
+            padding: 8px 5px;
+            text-align: left;
+            font-size: 10pt;
+        }
+        .group-header td {
+            font-size: 12pt;
+            font-weight: bold;
+            padding: 10px 5px;
+            background-color: #f9f9f9;
+            border-bottom: 1px solid #ccc;
+        }
+        .item-row td {
+            padding: 6px 5px;
+            border-bottom: 1px dotted #ccc;
+            font-size: 10pt;
+        }
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; width: 100%; border-top: 1px solid #ccc; padding-top: 5px; font-size: 9pt; color: #777; }
+    </style>
+</head>
+<body>
+<div class="page">
+    <!-- Cabeçalho -->
+    <div class="header">
+        <div class="logo-date">
+            <div class="logo">ENGECORE</div>
+            <div class="date">Gerado em: {{dataGeracao}}</div>
+        </div>
+        <h1>Relatório Curva ABC de Insumos</h1>
+        <p class="subtitle">Ranking de insumos por custo total.</p>
+    </div>
+
+    <!-- Seção do Gráfico -->
+    <section>
+        <div class="section-title">Top 5 Insumos por Custo Total</div>
+        <div class="chart">
+            <!-- O PdfService irá gerar as linhas (divs) do gráfico aqui -->
+            {{graficoBarras}}
+        </div>
+    </section>
+
+    <!-- Seção da Tabela -->
+    <section>
+        <div class="section-title">Detalhamento por Classe</div>
+        <table>
+            <thead>
+            <tr>
+                <th>Insumo</th>
+                <th style="text-align: right;">Custo Total</th>
+                <th style="text-align: right;">%</th>
+                <th style="text-align: right;">% Acum.</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- O PdfService irá gerar as linhas (<tr>) dinamicamente -->
+            {{tabelaClasses}}
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Rodapé -->
+    <div class="footer">
+        <span>Engecore | Relatório Financeiro/Suprimentos</span>
+        <span style="float: right;">Página 1 de 1</span>
+    </div>
+</div>
+</body>
+</html>

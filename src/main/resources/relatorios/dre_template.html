@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <title>Relatório de Estoque Crítico</title>
+    <style>
+        /* Estilos do mockup 'relatorios.html' */
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11pt; color: #333; }
+        .page { width: 100%; margin: 0; padding: 0; }
+        .header { border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 30px; }
+        .header h1 { font-size: 24pt; font-weight: bold; margin: 0; }
+        .header .subtitle { font-size: 11pt; color: #555; }
+        .header .logo-date { float: right; text-align: right; }
+        .header .logo { font-size: 14pt; font-weight: bold; }
+        .header .date { font-size: 10pt; color: #555; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 8px 5px; }
+        th {
+            background-color: #f4f4f4;
+            border-bottom: 2px solid #333;
+            text-align: left;
+            font-size: 10pt;
+            text-transform: uppercase;
+        }
+        .group-header td {
+            font-size: 12pt;
+            font-weight: bold;
+            padding-top: 15px;
+            border-bottom: 1px solid #ccc;
+        }
+        .item-row td {
+            border-bottom: 1px dotted #ccc;
+        }
+        .item-row .material { padding-left: 20px; }
+        .item-row .qty-atual { font-weight: bold; }
+
+        .summary-box {
+            text-align: right;
+            font-weight: bold;
+            font-size: 12pt;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f4f4f4;
+            border-radius: 8px;
+        }
+
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; width: 100%; border-top: 1px solid #ccc; padding-top: 5px; font-size: 9pt; color: #777; }
+    </style>
+</head>
+<body>
+<div class="page">
+    <!-- Cabeçalho -->
+    <div class="header">
+        <div class="logo-date">
+            <div class="logo">ENGECORE</div>
+            <div class="date">Gerado em: {{dataGeracao}}</div>
+        </div>
+        <h1>Relatório de Estoque Crítico</h1>
+        <p class="subtitle">Materiais com estoque abaixo ou igual ao nível mínimo.</p>
+    </div>
+
+    <!-- Tabela de Itens -->
+    <table>
+        <thead>
+        <tr>
+            <th>Estoque / Material</th>
+            <th style="text-align: right;">Qtd. Atual</th>
+            <th style="text-align: right;">Qtd. Mínima</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!--
+          O PdfService irá gerar as linhas (<tr>) dinamicamente
+          e injetá-las aqui no placeholder {{tableRows}}
+        -->
+        {{tableRows}}
+        </tbody>
+    </table>
+
+    <!-- Sumário -->
+    <div class="summary-box">
+        Total de Itens Críticos: {{totalItens}}
+    </div>
+
+    <!-- Rodapé -->
+    <div class="footer">
+        <span>Engecore | Relatório de Suprimentos</span>
+        <span style="float: right;">Página 1 de 1</span>
+    </div>
+</div>
+</body>
+</html>

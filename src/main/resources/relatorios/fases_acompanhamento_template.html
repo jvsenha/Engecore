@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <title>Acompanhamento de Fases</title>
+    <style>
+        /* Estilos do mockup 'relatorios.html' */
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11pt; color: #333; }
+        .page { width: 100%; margin: 0; padding: 0; }
+        .header { border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 30px; }
+        .header h1 { font-size: 24pt; font-weight: bold; margin: 0; }
+        .header .subtitle { font-size: 14pt; color: #333; font-weight: 500; }
+        .header .logo-date { float: right; text-align: right; }
+        .header .logo { font-size: 14pt; font-weight: bold; }
+        .header .date { font-size: 10pt; color: #555; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 9px 5px; }
+        th {
+            background-color: #f4f4f4;
+            border-bottom: 2px solid #333;
+            text-align: left;
+            font-size: 10pt;
+            text-transform: uppercase;
+        }
+        .item-row td {
+            border-bottom: 1px solid #eee;
+        }
+        .status-symbol {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            line-height: 18px;
+            text-align: center;
+            font-size: 10pt;
+            font-weight: bold;
+            color: white;
+            background-color: black;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        .status-planned {
+            background-color: white;
+            color: #999;
+            border: 1px solid #999;
+        }
+        .status-late {
+            background-color: #000; /* Preto para 'Atrasada' */
+        }
+        .status-concluida-atraso {
+            color: #000; /* Preto para 'Concluída com Atraso' */
+        }
+
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; width: 100%; border-top: 1px solid #ccc; padding-top: 5px; font-size: 9pt; color: #777; }
+    </style>
+</head>
+<body>
+<div class="page">
+    <!-- Cabeçalho -->
+    <div class="header">
+        <div class="logo-date">
+            <div class="logo">ENGECORE</div>
+            <div class="date">Gerado em: {{dataGeracao}}</div>
+        </div>
+        <h1>Acompanhamento Físico de Fases</h1>
+        <p class="subtitle">Obra: {{nomeObra}}</p>
+    </div>
+
+    <!-- Tabela de Fases -->
+    <table>
+        <thead>
+        <tr>
+            <th style="width: 35%;">Fase</th>
+            <th>Status</th>
+            <th style="text-align: center;">Início</th>
+            <th style="text-align: center;">Prev. Término</th>
+            <th style="text-align: center;">Término Real</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!--
+          O PdfService irá gerar as linhas (<tr>) dinamicamente
+          e injetá-las aqui no placeholder {{tableRows}}
+        -->
+        {{tableRows}}
+        </tbody>
+    </table>
+
+    <!-- Rodapé -->
+    <div class="footer">
+        <span>Engecore | Relatório de Obras</span>
+        <span style="float: right;">Página 1 de 1</span>
+    </div>
+</div>
+</body>
+</html>

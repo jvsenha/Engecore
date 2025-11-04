@@ -33,10 +33,21 @@ public class ProdutoFornecedorEntity {
     @Column(name = "data_atualizacao", nullable = false)
     private LocalDate dataAtualizacao;
 
-    @Column(name = "marca", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "marca_id", nullable = false)
     private MarcaEntity marca;
 
     @Column(name = "modelo", nullable = false)
     private String modelo;
 
+    // CAMPOS ADICIONADOS PARA COMPLETAR O FLUXO DE COTAÇÃO
+
+    @Column(length = 100)
+    private String prazoEntrega; // Ex: "5 dias úteis"
+
+    @Column(length = 100)
+    private String condicaoPagamento; // Ex: "30 dias"
+
+    @Column(columnDefinition = "TEXT")
+    private String observacoes; // Ex: "Frete grátis acima de R$ 500"
 }

@@ -13,8 +13,6 @@ public class InsumoMapper {
 
         InsumoEntity entity = new InsumoEntity();
         entity.setNome(dto.getNome());
-        entity.setModelo(dto.getModelo());
-        entity.setMarca(dto.getMarca());
         entity.setUnidade(dto.getUnidade());
         return entity;
     }
@@ -27,8 +25,6 @@ public class InsumoMapper {
 
         InsumoDTO dto = new InsumoDTO();
         dto.setNome(entity.getNome());
-        dto.setModelo(entity.getModelo());
-        dto.setMarca(entity.getMarca());
         dto.setUnidade(entity.getUnidade());
         return dto;
     }

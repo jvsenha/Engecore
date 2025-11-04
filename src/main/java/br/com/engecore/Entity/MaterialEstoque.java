@@ -40,7 +40,8 @@ public class MaterialEstoque {
 
     private BigDecimal quantidadeMaxima;
 
-    @Column(name = "marca", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "marca_id", nullable = false)
     private MarcaEntity marca;
 
     @Column(name = "modelo", nullable = false)
