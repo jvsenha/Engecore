@@ -40,6 +40,12 @@ public class MaterialEstoque {
 
     private BigDecimal quantidadeMaxima;
 
+    @Column(name = "marca", nullable = false)
+    private MarcaEntity marca;
+
+    @Column(name = "modelo", nullable = false)
+    private String modelo;
+
     public boolean isEstoqueCritico() {
         return quantidadeAtual.compareTo(quantidadeMinima) <= 0;
     }

@@ -77,7 +77,6 @@ public class MovFinanceiroService {
         return dto;
     }
 
-
     @Transactional
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
     public MovFinanceiraDTO atualizar(Long id, MovFinanceiraDTO dto) {
@@ -140,7 +139,6 @@ public class MovFinanceiroService {
         movFinanceiraRepository.deleteById(id);
     }
 
-
     public List<MovFinanceiraEntity> listarMovFinanceira(){
         return movFinanceiraRepository.findAll();
     }
@@ -148,7 +146,6 @@ public class MovFinanceiroService {
     public List<MovFinanceiraEntity> listarPorObra(Long idObra) {
         return movFinanceiraRepository.findByObraId(idObra);
     }
-
 
     public List<MovFinanceiraEntity> listarMovEmpresa() {
         return movFinanceiraRepository.findByObraIsNullAndClienteIsNull();
