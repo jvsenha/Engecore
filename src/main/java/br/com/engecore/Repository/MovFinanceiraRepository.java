@@ -12,4 +12,8 @@ public interface MovFinanceiraRepository extends JpaRepository<MovFinanceiraEnti
 
  // Buscar por ID do funcionário responsável
  List<MovFinanceiraEntity> findByFuncionarioResponsavelId(Long id);
+
+ List<MovFinanceiraEntity> findByObraIsNullAndClienteIsNull();
+
+ List<MovFinanceiraEntity> findByClienteId(Long clienteId);
 }

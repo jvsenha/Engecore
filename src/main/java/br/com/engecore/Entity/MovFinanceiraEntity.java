@@ -49,4 +49,8 @@ public class MovFinanceiraEntity {
 
     @Column(length = 255)
     private String descricao; // descrição da movimentação
+
+    @ManyToOne
+    @JoinColumn(name = "cliente_id") // Novo campo
+    private ClienteEntity cliente; // Novo campo
 }

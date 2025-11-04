@@ -51,6 +51,7 @@ public class ClienteController {
                 new ApiResponse<>(true, "Cliente encontrado", cliente)
         );
     }
+
     @GetMapping("/listar")
     public ResponseEntity<ApiResponse<List<ClienteDTO>>> listar() {
         List<ClienteDTO> clientes = clienteService.listar();

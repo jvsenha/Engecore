@@ -1,8 +1,5 @@
 package br.com.engecore.DTO;
 
-import br.com.engecore.Entity.FuncionarioEntity;
-import br.com.engecore.Entity.InsumoEntity;
-import br.com.engecore.Entity.ObrasEntity;
 import br.com.engecore.Enum.CategoriaFinanceira;
 import br.com.engecore.Enum.TipoMovFinanceiro;
 import lombok.AllArgsConstructor;
@@ -19,9 +16,10 @@ public class MovFinanceiraDTO {
     private BigDecimal valor;
     private TipoMovFinanceiro tipo;
     private CategoriaFinanceira categoriaFinanceira;
-    private ObrasEntity obra;
-    private InsumoEntity insumo;
-    private FuncionarioEntity funcionarioResponsavel;
+    private Long obraId; // Alterado de ObrasEntity para Long
+    private Long insumoId; // Alterado de InsumoEntity para Long
+    private Long funcionarioResponsavelId; // Alterado de FuncionarioEntity para Long
+    private Long clienteId; // Adicionado para movimentações diretas do cliente
     private LocalDate dataMovimento;
     private String descricao;
 }

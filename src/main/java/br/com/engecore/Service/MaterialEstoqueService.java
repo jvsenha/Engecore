@@ -15,7 +15,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -95,21 +94,6 @@ public class MaterialEstoqueService {
                 .forEach(em -> System.out.println("Estoque baixo: " + em.getMaterial().getNome()));
     }
 
-    @Transactional
-    public void atualizarQuantidadeAtual(Long id, BigDecimal novaQtd) {
-        MaterialEstoque estoqueMaterial = materialEstoqueRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Material em estoque não encontrado"));
-        estoqueMaterial.setQuantidadeAtual(novaQtd);
-        materialEstoqueRepository.save(estoqueMaterial);
-    }
-
-    @Transactional
-    public void atualizarQuantidadeMinima(Long id, BigDecimal novaQtd) {
-        MaterialEstoque estoqueMaterial = materialEstoqueRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Material em estoque não encontrado"));
-        estoqueMaterial.setQuantidadeMinima(novaQtd);
-        materialEstoqueRepository.save(estoqueMaterial);
-    }
 
     public List<MaterialEstoqueResponse> listarPorEstoque(Long idEstoque) {
         List<MaterialEstoque> lista = materialEstoqueRepository.findByEstoqueId(idEstoque);
