@@ -41,6 +41,9 @@ public class MovEstoqueService {
     @Autowired
     private ObrasRepository  obrasRepository;
 
+    @Autowired
+    private MarcaRepository marcaRepository;
+
 
     @Transactional
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
@@ -219,13 +222,31 @@ public class MovEstoqueService {
         MaterialEstoque novo = new MaterialEstoque();
         novo.setEstoque(estoque);
         novo.setMaterial(material);
-        novo.setQuantidadeAtual(BigDecimal.ZERO);
-        novo.setValor(request != null && request.getValor() != null ? request.getValor() : BigDecimal.ZERO);
+        novo.setQuantidadeAtual(BigDecimal.ZERO); // A quantidade será adicionada em seguida pelo 'registrarEntrada'
+
+        // --- INÍCIO DA CORREÇÃO ---
+        if (request == null) {
+            throw new RuntimeException("MaterialEstoqueRequest (detalhes do material) não pode ser nulo ao criar novo item no estoque.");
+        }
+
+        // Busca a Marca
+        if (request.getMarcaId() == null) {
+            // Se o request não tiver marcaId, o banco falhará (cannot be null)
+            throw new RuntimeException("MarcaId não foi fornecido no MaterialEstoqueRequest durante a entrada de estoque.");
+        }
+        MarcaEntity marca = marcaRepository.findById(request.getMarcaId())
+                .orElseThrow(() -> new RuntimeException("Marca não encontrada: " + request.getMarcaId()));
+
+        novo.setMarca(marca);
+        novo.setModelo(request.getModelo()); // Salva o modelo (ex: "Saco 50kg")
+        // --- FIM DA CORREÇÃO ---
+
+        novo.setValor(request != null && request.getValor() != null ? request.getValor() : request.getValor());
         novo.setQuantidadeMinima(request != null && request.getQuantidadeMinima() != null ? request.getQuantidadeMinima() : BigDecimal.ZERO);
         novo.setQuantidadeMaxima(request != null && request.getQuantidadeMaxima() != null ? request.getQuantidadeMaxima() : BigDecimal.ZERO);
+
         return materialEstoqueRepository.save(novo);
     }
-
     private BigDecimal calcularValorCompra(MovEstoqueEntity mov, MaterialEstoque mat) {
         return mat.getValor().multiply(mov.getQuantidade());
     }

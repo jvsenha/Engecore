@@ -1,5 +1,6 @@
 package br.com.engecore.Entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.OneToMany;
@@ -15,5 +16,6 @@ import java.util.List;
 @Table(name = "fornecedor")
 public class FornecedorEntity extends UserEntity  {
     @OneToMany(mappedBy = "fornecedor", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<ProdutoFornecedorEntity> produtos;
 }

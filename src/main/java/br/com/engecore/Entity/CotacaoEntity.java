@@ -1,5 +1,6 @@
 package br.com.engecore.Entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference; // IMPORTADO
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,10 +23,12 @@ public class CotacaoEntity {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "obra_id")
+    // @JsonManagedReference  <-- REMOVIDO (Incorreto aqui)
     private ObrasEntity obra;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "insumo_id")
+    // @JsonManagedReference  <-- REMOVIDO (Incorreto aqui)
     private InsumoEntity insumo; // O insumo genérico que está sendo cotado
 
     @Column(nullable = false)
@@ -42,9 +45,11 @@ public class CotacaoEntity {
 
     @ManyToOne
     @JoinColumn(name = "funcionario_id")
+    // @JsonManagedReference  <-- REMOVIDO (Incorreto aqui)
     private FuncionarioEntity funcionarioSolicitante;
 
     // A mágica acontece aqui: uma cotação tem VÁRIAS propostas
     @OneToMany(mappedBy = "cotacao", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference // <-- ADICIONADO (Correto, este é o "Pai")
     private List<PropostaCotacaoEntity> propostas;
 }

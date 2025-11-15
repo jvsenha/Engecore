@@ -77,8 +77,8 @@ public class ObrasEntity{
     @JsonManagedReference
     private List<FasesEntity> fases;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "estoque_id")
+
+    @OneToOne(mappedBy = "obra", cascade = CascadeType.ALL)
     @JsonManagedReference
     private EstoqueEntity estoque;
 }

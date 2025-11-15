@@ -1,5 +1,6 @@
 package br.com.engecore.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,11 +21,13 @@ public class PropostaCotacaoEntity {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "cotacao_id")
+    @JsonBackReference
     private CotacaoEntity cotacao;
 
     // Liga a proposta ao produto específico (que tem fornecedor, marca e preço)
     @ManyToOne(optional = false)
     @JoinColumn(name = "produto_fornecedor_id")
+    @JsonBackReference
     private ProdutoFornecedorEntity produtoFornecedor;
 
     // Você pode copiar o valor de ProdutoFornecedor ou permitir que seja

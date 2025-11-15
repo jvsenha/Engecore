@@ -1,5 +1,6 @@
 package br.com.engecore.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -42,6 +43,7 @@ public class MaterialEstoque {
 
     @ManyToOne
     @JoinColumn(name = "marca_id", nullable = false)
+    @JsonBackReference
     private MarcaEntity marca;
 
     @Column(name = "modelo", nullable = false)

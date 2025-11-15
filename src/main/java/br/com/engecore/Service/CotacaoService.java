@@ -6,12 +6,14 @@ import br.com.engecore.Enum.CategoriaFinanceira;
 import br.com.engecore.Enum.TipoMov;
 import br.com.engecore.Enum.TipoMovFinanceiro;
 import br.com.engecore.Enum.TipoPessoa;
-import br.com.engecore.Mapper.CotacaoMapper; // Importa o novo Mapper
+import br.com.engecore.Mapper.CotacaoMapper;
 import br.com.engecore.Repository.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,103 +39,173 @@ public class CotacaoService {
     @Autowired private MovFinanceiroService movFinanceiroService;
 
     // Mapper
-    @Autowired private CotacaoMapper cotacaoMapper; // Injeta o Mapper
+    @Autowired private CotacaoMapper cotacaoMapper;
 
     /**
-     * Passo 1: O usuário solicita uma cotação (Tela CotacaoDeValores.jsx)
-     * Isso cria a Cotação "Pai" e busca automaticamente as propostas.
+     * MÉTODO PÚBLICO (CREATE)
+     * Recebe um DTO com vários itens e cria uma cotação para CADA item.
+     * Retorna uma Lista de Cotações.
      */
     @Transactional
-    public CotacaoEntity solicitarCotacao(CotacaoRequestDTO dto) {
-        // 1. Encontrar as entidades principais
+    @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
+    public List<CotacaoEntity> solicitarCotacao(CotacaoRequestDTO dto) {
+
+        // 1. Validar dados gerais (Obra e Funcionário)
         ObrasEntity obra = obrasRepository.findById(dto.getObraId())
                 .orElseThrow(() -> new RuntimeException("Obra não encontrada: " + dto.getObraId()));
-        InsumoEntity insumo = insumoRepository.findById(dto.getInsumoId())
-                .orElseThrow(() -> new RuntimeException("Insumo não encontrado: " + dto.getInsumoId()));
+
         FuncionarioEntity func = funcionarioRepository.findById(dto.getFuncionarioId())
                 .orElseThrow(() -> new RuntimeException("Funcionário não encontrado: " + dto.getFuncionarioId()));
 
-        // 2. Criar e salvar a Cotação principal
+        if (dto.getItens() == null || dto.getItens().isEmpty()) {
+            throw new RuntimeException("A lista de itens não pode estar vazia.");
+        }
+
+        List<CotacaoEntity> cotacoesCriadas = new ArrayList<>();
+
+        // 2. Faz um loop por cada item da solicitação
+        for (ItemCotacaoDTO item : dto.getItens()) {
+
+            // 3. Valida o Insumo do item
+            InsumoEntity insumo = insumoRepository.findById(item.getInsumoId())
+                    .orElseThrow(() -> new RuntimeException("Insumo não encontrado: " + item.getInsumoId()));
+
+            // 4. Chama a lógica de criação individual
+            CotacaoEntity cotacaoIndividual = criarCotacaoIndividual(
+                    obra,
+                    insumo,
+                    item.getQuantidade(),
+                    dto.getDataNecessidade(),
+                    dto.getPrioridade(),
+                    func
+            );
+            cotacoesCriadas.add(cotacaoIndividual);
+        }
+
+        // 5. Retorna a lista de cotações que foram criadas
+        return cotacoesCriadas;
+    }
+
+    /**
+     * MÉTODO PRIVADO (Lógica de Criação)
+     * Cria uma cotação e propostas automáticas para UM único insumo.
+     */
+    private CotacaoEntity criarCotacaoIndividual(ObrasEntity obra, InsumoEntity insumo, BigDecimal quantidade,
+                                                 LocalDate dataNecessidade, String prioridade, FuncionarioEntity func) {
+
+        // 1. Criar e salvar a Cotação principal
         CotacaoEntity cotacao = new CotacaoEntity();
         cotacao.setObra(obra);
         cotacao.setInsumo(insumo);
-        cotacao.setQuantidade(dto.getQuantidade());
-        cotacao.setDataNecessidade(dto.getDataNecessidade());
-        cotacao.setPrioridade(dto.getPrioridade());
+        cotacao.setQuantidade(quantidade);
+        cotacao.setDataNecessidade(dataNecessidade);
+        cotacao.setPrioridade(prioridade);
         cotacao.setFuncionarioSolicitante(func);
         cotacao.setStatus("ABERTA");
+        cotacao.setPropostas(new ArrayList<>());
         cotacao = cotacaoRepository.save(cotacao);
 
-        // 3. (MODO AUTOMÁTICO) Encontrar todos os fornecedores que vendem este insumo
-        List<ProdutoFornecedorEntity> produtos = produtoFornecedorRepository.findByInsumoId(insumo.getId());
-        if (produtos.isEmpty()) {
-            throw new RuntimeException("Nenhum fornecedor cadastrado para o insumo: " + insumo.getNome());
-        }
+        // 2. Gerar propostas automáticas (lógica idêntica à anterior)
+        gerarPropostasAutomaticas(cotacao);
 
-        // 4. Criar uma Proposta para cada fornecedor encontrado
-        List<PropostaCotacaoEntity> propostas = new ArrayList<>();
-
-        // Lógica simples para encontrar o melhor preço
-        ProdutoFornecedorEntity melhorProduto = produtos.stream()
-                .min((p1, p2) -> p1.getValor().compareTo(p2.getValor()))
-                .orElse(null);
-
-        for (ProdutoFornecedorEntity produto : produtos) {
-            PropostaCotacaoEntity proposta = new PropostaCotacaoEntity();
-            proposta.setCotacao(cotacao);
-            proposta.setProdutoFornecedor(produto);
-            proposta.setValorUnitario(produto.getValor()); // Pega o preço de tabela
-
-            // Define os campos do frontend
-            proposta.setPrazoEntrega(produto.getPrazoEntrega()); // Assumindo que você adicionará isso ao ProdutoFornecedorEntity
-            proposta.setCondicaoPagamento(produto.getCondicaoPagamento()); // Assumindo que você adicionará isso
-            proposta.setObservacoes(produto.getObservacoes()); // Assumindo que você adicionará isso
-
-            // Lógica do melhor preço
-            if (produto.equals(melhorProduto)) {
-                proposta.setMelhorPreco(true);
-            }
-
-            propostas.add(proposta);
-        }
-
-        propostaCotacaoRepository.saveAll(propostas);
-        cotacao.setPropostas(propostas);
         return cotacao;
     }
 
     /**
-     * Passo 2: O usuário visualiza as propostas (Tela MostrarCotacao.jsx)
-     * MÉTODO ATUALIZADO para usar o Mapper
+     * READ (Listar): Lista todas as cotações criadas (retorna DTO leve).
      */
-    public List<PropostaCotacaoDTO> listarPropostas(Long cotacaoId) {
-        List<PropostaCotacaoEntity> propostas = propostaCotacaoRepository.findByCotacaoId(cotacaoId);
-
-        return propostas.stream()
-                .map(cotacaoMapper::toPropostaDTO) // Delega a conversão para o Mapper
+    @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
+    public List<CotacaoListDTO> listarTodas() {
+        List<CotacaoEntity> cotacoes = cotacaoRepository.findAll();
+        return cotacoes.stream()
+                .map(cotacaoMapper::toCotacaoListDTO)
                 .collect(Collectors.toList());
     }
 
     /**
-     * Passo 3: O usuário clica em "Confirmar Pedido" (Tela MostrarCotacao.jsx)
-     * ESTA É A INTEGRAÇÃO CRÍTICA.
+     * READ (Detalhes): Busca detalhes de uma cotação (retorna DTO de Detalhes).
+     */
+    @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
+    public CotacaoDetalhesDTO detalhesCotacao(Long id) {
+        CotacaoEntity cotacao = buscarCotacaoPorId(id);
+        return cotacaoMapper.toDetalhesDTO(cotacao);
+    }
+
+    /**
+     * UPDATE: Atualiza uma cotação.
      */
     @Transactional
+    @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
+    public CotacaoDetalhesDTO atualizarCotacao(Long id, CotacaoRequestDTO dto) {
+        // TODO: A lógica de atualização precisa ser refeita para suportar o novo DTO
+        // que recebe uma lista de itens.
+        CotacaoEntity cotacao = buscarCotacaoPorId(id);
+        return cotacaoMapper.toDetalhesDTO(cotacao);
+    }
+
+    /**
+     * DELETE: Deleta uma cotação.
+     */
+    @Transactional
+    @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
+    public void deletarCotacao(Long id) {
+        CotacaoEntity cotacao = buscarCotacaoPorId(id);
+        if ("CONCLUIDA".equals(cotacao.getStatus())) {
+            throw new RuntimeException("Não é possível deletar uma cotação já CONCLUÍDA.");
+        }
+        cotacaoRepository.delete(cotacao);
+    }
+
+    /**
+     * AÇÃO: Re-executa a busca por fornecedores para uma cotação ABERTA.
+     * Retorna a nova lista de PropostaCotacaoDTO.
+     */
+    @Transactional
+    @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
+    public List<PropostaCotacaoDTO> regerarPropostas(Long cotacaoId) {
+        // 1. Busca
+        CotacaoEntity cotacao = buscarCotacaoPorId(cotacaoId);
+
+        // 2. Valida
+        if (!"ABERTA".equals(cotacao.getStatus())) {
+            throw new RuntimeException("Não é possível re-gerar propostas para uma cotação que não está ABERTA.");
+        }
+
+        // 3. Executa a lógica (isto já salva as propostas)
+        gerarPropostasAutomaticas(cotacao);
+
+        // 4. Retorna a nova lista de DTOs de propostas
+        return listarPropostas(cotacaoId);
+    }
+
+    /**
+     * READ (Propostas): O usuário visualiza as propostas.
+     */
+    @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication) or @securityService.isFornecedor(authentication)")
+    public List<PropostaCotacaoDTO> listarPropostas(Long cotacaoId) {
+        List<PropostaCotacaoEntity> propostas = propostaCotacaoRepository.findByCotacaoId(cotacaoId);
+        return propostas.stream()
+                .map(cotacaoMapper::toPropostaDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * AÇÃO: O usuário clica em "Confirmar Pedido".
+     */
+    @Transactional
+    @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
     public void confirmarPedido(Long propostaId) {
-        // 1. Achar a proposta escolhida
         PropostaCotacaoEntity proposta = propostaCotacaoRepository.findById(propostaId)
                 .orElseThrow(() -> new RuntimeException("Proposta não encontrada: " + propostaId));
         CotacaoEntity cotacao = proposta.getCotacao();
 
         if (!"ABERTA".equals(cotacao.getStatus())) {
-            throw new RuntimeException("Esta cotação não está mais aberta e não pode ser confirmada.");
+            throw new RuntimeException("Esta cotação não está mais aberta.");
         }
 
-        // 2. Buscar o nome correto do fornecedor (lógica interna do serviço)
         FornecedorEntity fornecedor = proposta.getProdutoFornecedor().getFornecedor();
-        String nomeFornecedor = getNomeDoFornecedor(fornecedor); // Usa o método auxiliar privado
+        String nomeFornecedor = getNomeDoFornecedor(fornecedor);
 
-        // 3. Criar a Movimentação Financeira (A Despesa)
         MovFinanceiraDTO movFinDTO = new MovFinanceiraDTO();
         movFinDTO.setTipo(TipoMovFinanceiro.DESPESA);
         movFinDTO.setCategoriaFinanceira(CategoriaFinanceira.COMPRA_MATERIAL);
@@ -143,57 +215,111 @@ public class CotacaoService {
         movFinDTO.setObraId(cotacao.getObra().getId());
         movFinDTO.setInsumoId(cotacao.getInsumo().getId());
         movFinDTO.setFuncionarioResponsavelId(cotacao.getFuncionarioSolicitante().getId());
-
         movFinanceiroService.cadastrar(movFinDTO);
 
-        // 4. Criar a Movimentação de Estoque (A Entrada)
-        // A. Encontrar o Estoque da Obra
         EstoqueEntity estoqueDaObra = cotacao.getObra().getEstoque();
         if (estoqueDaObra == null) {
             throw new RuntimeException("A Obra '" + cotacao.getObra().getNomeObra() + "' não possui um estoque associado!");
         }
 
-        // B. Criar o DTO da Movimentação de Estoque
         MovEstoqueDTO movEstDTO = new MovEstoqueDTO();
         movEstDTO.setTipoMov(TipoMov.ENTRADA);
         movEstDTO.setInsumoId(cotacao.getInsumo().getId());
         movEstDTO.setEstoqueDestinoId(estoqueDaObra.getId());
         movEstDTO.setQuantidade(cotacao.getQuantidade());
         movEstDTO.setFuncionarioId(cotacao.getFuncionarioSolicitante().getId());
-        movEstDTO.setDataMovimentacao(LocalDate.now()); // Idealmente, esta data deveria ser a da *entrega*
+        movEstDTO.setDataMovimentacao(LocalDate.now());
 
-        // C. Informar os dados do material para o estoque (preço, etc)
         MaterialEstoqueRequest matEstoqueRequest = new MaterialEstoqueRequest();
         matEstoqueRequest.setValor(proposta.getValorUnitario());
-        // Aqui você pode definir valores padrão de min/max se desejar
-        // matEstoqueRequest.setQuantidadeMinima(...);
-        // matEstoqueRequest.setQuantidadeMaxima(...);
 
+        if (proposta.getProdutoFornecedor() == null) {
+            throw new RuntimeException("Erro de dados: A proposta não está ligada a um ProdutoFornecedor.");
+        }
+        if (proposta.getProdutoFornecedor().getMarca() == null) {
+            throw new RuntimeException("Erro de dados: O ProdutoFornecedor (ID: " + proposta.getProdutoFornecedor().getId() + ") não possui uma Marca associada.");
+        }
+
+        matEstoqueRequest.setMarcaId(proposta.getProdutoFornecedor().getMarca().getId());
+        matEstoqueRequest.setModelo(proposta.getProdutoFornecedor().getModelo());
         movEstDTO.setMaterialEstoque(matEstoqueRequest);
-
         movEstoqueService.cadastrar(movEstDTO);
 
-        // 5. Fechar a Cotação
         cotacao.setStatus("CONCLUIDA");
         cotacaoRepository.save(cotacao);
     }
 
-    // --- MÉTODO AUXILIAR PRIVADO ---
-    // (Necessário para a lógica de 'confirmarPedido' criar a descrição)
+    // --- MÉTODOS AUXILIARES PRIVADOS ---
+
+    /**
+     * Busca a Entidade pelo ID (método auxiliar interno)
+     */
+    private CotacaoEntity buscarCotacaoPorId(Long id) {
+        return cotacaoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cotação não encontrada: " + id));
+    }
+
+    /**
+     * (Extraído): Lógica para encontrar fornecedores e gerar propostas.
+     */
+    private void gerarPropostasAutomaticas(CotacaoEntity cotacao) {
+        // 1. Limpe a coleção gerenciada.
+        // O 'orphanRemoval=true' e 'CascadeType.ALL' farão o trabalho de deletar do banco.
+        if (cotacao.getPropostas() == null) {
+            cotacao.setPropostas(new ArrayList<>());
+        } else {
+            cotacao.getPropostas().clear();
+        }
+
+        // 2. Busque os produtos (sua lógica existente)
+        List<ProdutoFornecedorEntity> produtos = produtoFornecedorRepository.findByInsumoId(cotacao.getInsumo().getId());
+        if (produtos.isEmpty()) {
+            System.err.println("Nenhum fornecedor cadastrado para o insumo: " + cotacao.getInsumo().getNome());
+            return; // A cotação ficará com 0 propostas, o que está correto.
+        }
+
+        // 3. Encontre o melhor produto (sua lógica existente)
+        ProdutoFornecedorEntity melhorProduto = produtos.stream()
+                .min((p1, p2) -> p1.getValor().compareTo(p2.getValor()))
+                .orElse(null);
+
+        // 4. Itere e ADICIONE à lista gerenciada (NÃO crie uma lista nova)
+        for (ProdutoFornecedorEntity produto : produtos) {
+            PropostaCotacaoEntity proposta = new PropostaCotacaoEntity();
+            proposta.setCotacao(cotacao); // Linka o filho ao pai
+            proposta.setProdutoFornecedor(produto);
+            proposta.setValorUnitario(produto.getValor());
+            proposta.setPrazoEntrega(produto.getPrazoEntrega());
+            proposta.setCondicaoPagamento(produto.getCondicaoPagamento());
+            proposta.setObservacoes(produto.getObservacoes());
+
+            if (produto.equals(melhorProduto)) {
+                proposta.setMelhorPreco(true);
+            }
+
+            // 5. Adiciona o novo item DIRETAMENTE na lista do pai
+            cotacao.getPropostas().add(proposta);
+        }
+
+        // 6. REMOVA as linhas problemáticas.
+        // propostaCotacaoRepository.saveAll(propostas); <-- Não é necessário, o Cascade fará isso.
+        // cotacao.setPropostas(propostas); <-- Esta era a linha do ERRO.
+
+        // Como o método é @Transactional, o Hibernate salvará as
+        // mudanças na lista 'cotacao.getPropostas()' automaticamente.
+    }
 
     /**
      * Busca o nome fantasia (se PJ) ou o nome (se PF) do fornecedor.
      */
     private String getNomeDoFornecedor(FornecedorEntity fornecedor) {
         if (fornecedor == null) return "Fornecedor N/A";
-
         if (fornecedor.getTipoPessoa() == TipoPessoa.JURIDICA) {
             UsuarioJuridico uj = usuarioJuridicoRepository.findByUsuarioId(fornecedor.getId());
             if (uj != null && uj.getNomeFantasia() != null && !uj.getNomeFantasia().isEmpty()) {
                 return uj.getNomeFantasia();
             }
         }
-        // Fallback para o nome base (Pessoa Física ou PJ sem nome fantasia)
         return fornecedor.getNome();
     }
 }
