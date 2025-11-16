@@ -31,5 +31,6 @@ public class EstoqueEntity {
 
     @OneToOne
     @JoinColumn(name = "obra_id")
+    @JsonBackReference(value = "obra-estoque")
     private ObrasEntity obra;
 }

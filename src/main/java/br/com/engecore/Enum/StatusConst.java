@@ -4,5 +4,6 @@ public enum StatusConst {
     PLANEJAMENTO,
     EM_ANDAMENTO,
     CONCLUIDA,
-    CANCELADA
+    CANCELADA,
+    PAUSADA
 }

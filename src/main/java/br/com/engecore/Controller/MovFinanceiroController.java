@@ -41,6 +41,14 @@ public class MovFinanceiroController {
         );
     }
 
+    @GetMapping("/listar")
+    public ResponseEntity<ApiResponse<List<MovFinanceiraEntity>>> listar() {
+        List<MovFinanceiraEntity> movimentacoes = movFinanceiroService.listarMovFinanceira();
+        return ResponseEntity.ok(
+                new ApiResponse<>(true, "Movimentações da Empresa listadas com sucesso", movimentacoes)
+        );
+    }
+
     @GetMapping("/saldo/empresa")
     public ResponseEntity<ApiResponse<BigDecimal>> getSaldoEmpresa() {
         BigDecimal saldo = movFinanceiroService.calcularSaldoEmpresa();
