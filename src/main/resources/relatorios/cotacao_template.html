@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <title>Relatório de Cotação</title>
+    <style>
+        body { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11pt; color: #333; }
+        .page { width: 100%; margin: 0; padding: 0; }
+        .header { border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 30px; }
+        .header h1 { font-size: 24pt; font-weight: bold; margin: 0; }
+        .header .subtitle { font-size: 11pt; color: #555; }
+        .header .logo-date { float: right; text-align: right; }
+        .header .logo { font-size: 14pt; font-weight: bold; }
+        .header .date { font-size: 10pt; color: #555; }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            background-color: #f4f4f4;
+            border-bottom: 2px solid #333;
+            padding: 8px 5px;
+            text-align: left;
+            font-size: 10pt;
+        }
+        .item-row td {
+            padding: 6px 5px;
+            border-bottom: 1px dotted #ccc;
+            font-size: 10pt;
+        }
+        .best-price { background-color: #e6ffed; font-weight: bold; }
+        .section-title { font-size: 10pt; font-weight: bold; text-transform: uppercase; color: #555; margin-bottom: 8px; margin-top: 20px; }
+        .footer { position: fixed; bottom: 0; left: 0; right: 0; width: 100%; border-top: 1px solid #ccc; padding-top: 5px; font-size: 9pt; color: #777; }
+
+        /* Box de Informações */
+        .info-box { background-color: #f9f9f9; border: 1px solid #eee; border-radius: 8px; padding: 12px; margin-bottom: 20px; }
+        .info-grid { display: -fs-box; width: 100%; } /* Compatibilidade com openhtmltopdf */
+        .info-item { width: 33.3%; font-size: 10pt; }
+        .info-item label { color: #555; font-size: 9pt; }
+        .info-item div { font-weight: bold; font-size: 11pt; }
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="header">
+        <div class="logo-date">
+            <div class="logo">ENGECORE</div>
+            <div class="date">Gerado em: {{dataGeracao}}</div>
+        </div>
+        <h1>Relatório de Cotação #{{cotacaoId}}</h1>
+        <p class="subtitle">Comparativo de propostas de fornecedores.</p>
+    </div>
+
+    <section>
+        <div class="section-title">Informações da Solicitação</div>
+        <div class="info-box">
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Obra</label>
+                    <div>{{nomeObra}}</div>
+                </div>
+                <div class="info-item">
+                    <label>Insumo Solicitado</label>
+                    <div>{{nomeInsumo}}</div>
+                </div>
+                <div class="info-item">
+                    <label>Status da Cotação</label>
+                    <div>{{status}}</div>
+                </div>
+            </div>
+            <div class="info-grid" style="padding-top: 10px;">
+                <div class="info-item">
+                    <label>Quantidade</label>
+                    <div>{{quantidade}}</div>
+                </div>
+                <div class="info-item">
+                    <label>Data de Necessidade</label>
+                    <div>{{dataNecessidade}}</div>
+                </div>
+                <div class="info-item">
+                    <label>Solicitante</label>
+                    <div>{{solicitante}}</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="section-title">Propostas Recebidas</div>
+        <table>
+            <thead>
+            <tr>
+                <th>Fornecedor</th>
+                <th>CNPJ</th>
+                <th style="text-align: right;">Valor Unit.</th>
+                <th>Prazo Entrega</th>
+                <th>Pagamento</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{tabelaPropostas}}
+            </tbody>
+        </table>
+    </section>
+
+    <div class="footer">
+        <span>Engecore | Relatório de Cotações</span>
+        <span style="float: right;">Página 1 de 1</span>
+    </div>
+</div>
+</body>
+</html>
