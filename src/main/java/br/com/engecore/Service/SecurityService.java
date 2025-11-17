@@ -53,4 +53,10 @@ public class SecurityService {
         return auth.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_FUNC_RH"));
     }
+
+    // FORNECEDOR
+    public boolean isFornecedor(Authentication auth) {
+        return auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_FORNECEDOR"));
+    }
 }

@@ -3,6 +3,7 @@ package br.com.engecore.Controller;
 import br.com.engecore.DTO.*;
 import br.com.engecore.Entity.ObrasEntity;
 import br.com.engecore.Repository.ObrasRepository;
+import br.com.engecore.Service.CotacaoService;
 import br.com.engecore.Service.PdfService;
 import br.com.engecore.Service.RelatorioService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,9 @@ public class RelatorioController {
 
     @Autowired
     private RelatorioService relatorioService;
+
+  @Autowired
+    private CotacaoService cotacaoService;
 
     @Autowired
     private PdfService pdfService;
@@ -143,5 +147,22 @@ public class RelatorioController {
         // headers.setContentDispositionFormData("inline", filename); // Tenta abrir no navegador
         headers.setContentLength(pdfBytes.length);
         return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+    }
+
+    @GetMapping("/cotacao/{id}/pdf")
+    public ResponseEntity<byte[]> gerarPdfCotacao(@PathVariable Long id) {
+        try {
+            // 3. Buscar os dados necessários de ambos os serviços
+            CotacaoDetalhesDTO cotacaoInfo = cotacaoService.detalhesCotacao(id);
+            List<PropostaCotacaoDTO> propostas = cotacaoService.listarPropostas(id);
+
+            // 4. Chamar o PdfService com os dados
+            byte[] pdfBytes = pdfService.gerarPdfCotacaoHtml(cotacaoInfo, propostas);
+
+            return criarResponsePdf(pdfBytes, "Cotacao_" + id + ".pdf");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

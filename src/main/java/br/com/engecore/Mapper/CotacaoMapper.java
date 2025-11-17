@@ -1,20 +1,20 @@
 package br.com.engecore.Mapper;
 
+import br.com.engecore.DTO.CotacaoDetalhesDTO;
+import br.com.engecore.DTO.CotacaoListDTO; // Importar novo DTO
 import br.com.engecore.DTO.PropostaCotacaoDTO;
-import br.com.engecore.Entity.FornecedorEntity;
-import br.com.engecore.Entity.PropostaCotacaoEntity;
-import br.com.engecore.Entity.UsuarioFisico;
-import br.com.engecore.Entity.UsuarioJuridico;
+import br.com.engecore.Entity.*;
 import br.com.engecore.Enum.TipoPessoa;
 import br.com.engecore.Repository.UsuarioFisicoRepository;
 import br.com.engecore.Repository.UsuarioJuridicoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-@Component // Importante: Torna este Mapper um Bean gerenciado pelo Spring
+import java.math.BigDecimal;
+
+@Component
 public class CotacaoMapper {
 
-    // Injeta os repositórios necessários para buscar os dados de PF/PJ
     private final UsuarioJuridicoRepository usuarioJuridicoRepository;
     private final UsuarioFisicoRepository usuarioFisicoRepository;
 
@@ -24,6 +24,64 @@ public class CotacaoMapper {
         this.usuarioJuridicoRepository = usuarioJuridicoRepository;
         this.usuarioFisicoRepository = usuarioFisicoRepository;
     }
+
+    /**
+     * NOVO MÉTODO: Converte a Entity completa para o DTO "leve" de listagem.
+     */
+    public CotacaoListDTO toCotacaoListDTO(CotacaoEntity entity) {
+        if (entity == null) return null;
+
+        CotacaoListDTO dto = new CotacaoListDTO();
+        dto.setId(entity.getId());
+        dto.setStatus(entity.getStatus());
+        dto.setPrioridade(entity.getPrioridade());
+        dto.setDataNecessidade(entity.getDataNecessidade());
+        dto.setQuantidade(entity.getQuantidade());
+
+        // Mapeia nomes de entidades relacionadas (evita aninhamento)
+        if (entity.getInsumo() != null) {
+            dto.setNomeInsumo(entity.getInsumo().getNome());
+        }
+        if (entity.getObra() != null) {
+            dto.setNomeObra(entity.getObra().getNomeObra());
+        }
+
+        // Processa as propostas para encontrar a melhor
+        if (entity.getPropostas() != null && !entity.getPropostas().isEmpty()) {
+            dto.setTotalPropostas(entity.getPropostas().size());
+
+            // Encontra a proposta marcada como a melhor
+            PropostaCotacaoEntity melhorProposta = entity.getPropostas().stream()
+                    .filter(PropostaCotacaoEntity::isMelhorPreco)
+                    .findFirst()
+                    .orElse(null); // Se não houver, tenta pegar a primeira
+
+            if (melhorProposta == null) {
+                melhorProposta = entity.getPropostas().get(0);
+            }
+
+            dto.setMelhorValorUnitario(melhorProposta.getValorUnitario());
+
+            // Pega o nome do fornecedor da melhor proposta
+            if (melhorProposta.getProdutoFornecedor() != null && melhorProposta.getProdutoFornecedor().getFornecedor() != null) {
+                // Reutiliza a lógica do método privado getNomeDoFornecedor
+                dto.setNomeMelhorFornecedor(
+                        getNomeDoFornecedor(melhorProposta.getProdutoFornecedor().getFornecedor())
+                );
+            } else {
+                dto.setNomeMelhorFornecedor("N/A");
+            }
+
+        } else {
+            // Se não há propostas
+            dto.setTotalPropostas(0);
+            dto.setMelhorValorUnitario(BigDecimal.ZERO);
+            dto.setNomeMelhorFornecedor("Sem propostas");
+        }
+
+        return dto;
+    }
+
 
     /**
      * Converte uma PropostaCotacaoEntity para o DTO que o frontend espera.
@@ -36,13 +94,10 @@ public class CotacaoMapper {
         PropostaCotacaoDTO dto = new PropostaCotacaoDTO();
         dto.setId(proposta.getId());
 
-        // Garante que o produtoFornecedor e o fornecedor não são nulos
         if (proposta.getProdutoFornecedor() != null && proposta.getProdutoFornecedor().getFornecedor() != null) {
             FornecedorEntity fornecedor = proposta.getProdutoFornecedor().getFornecedor();
-
-            // Usa os métodos auxiliares para buscar os dados corretos
             dto.setFornecedor(getNomeDoFornecedor(fornecedor));
-            dto.setCnpj(getIdentificadorFornecedor(fornecedor)); // O campo no DTO chama "cnpj", mas armazena CPF ou CNPJ
+            dto.setCnpj(getIdentificadorFornecedor(fornecedor));
         } else {
             dto.setFornecedor("Fornecedor não informado");
             dto.setCnpj("N/A");
@@ -69,7 +124,6 @@ public class CotacaoMapper {
                 return uj.getNomeFantasia();
             }
         }
-        // Fallback para o nome base (Pessoa Física ou PJ sem nome fantasia)
         return fornecedor.getNome();
     }
 
@@ -87,5 +141,28 @@ public class CotacaoMapper {
             return (uf != null) ? uf.getCpf() : "CPF N/A";
         }
         return "N/A";
+    }
+
+    public CotacaoDetalhesDTO toDetalhesDTO(CotacaoEntity entity) {
+        if (entity == null) return null;
+
+        CotacaoDetalhesDTO dto = new CotacaoDetalhesDTO();
+        dto.setId(entity.getId());
+        dto.setInsumo(entity.getInsumo());
+        dto.setQuantidade(entity.getQuantidade());
+        dto.setDataNecessidade(entity.getDataNecessidade());
+        dto.setPrioridade(entity.getPrioridade());
+        dto.setStatus(entity.getStatus());
+        dto.setPropostas(entity.getPropostas());
+
+        // Mapeia apenas os nomes de entidades relacionadas
+        if (entity.getObra() != null) {
+            dto.setNomeObra(entity.getObra().getNomeObra());
+        }
+        if (entity.getFuncionarioSolicitante() != null) {
+            dto.setFuncionarioSolicitante(entity.getFuncionarioSolicitante().getNome());
+        }
+
+        return dto;
     }
 }

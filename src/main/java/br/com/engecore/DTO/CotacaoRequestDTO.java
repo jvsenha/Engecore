@@ -6,27 +6,20 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class CotacaoRequestDTO {
 
-    // ID da ObrasEntity
     private Long obraId;
 
-    // ID do InsumoEntity genérico
-    private Long insumoId;
+    private List<ItemCotacaoDTO> itens;
 
-    // Quantidade necessária
-    private BigDecimal quantidade;
-
-    // Data que o material é necessário na obra
     private LocalDate dataNecessidade;
 
-    // "Normal", "Alta", "Urgente"
     private String prioridade;
 
-    // ID do FuncionarioEntity que está solicitando
     private Long funcionarioId;
 }

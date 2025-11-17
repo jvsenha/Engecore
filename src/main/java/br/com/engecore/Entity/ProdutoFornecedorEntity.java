@@ -1,5 +1,6 @@
 package br.com.engecore.Entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,10 +22,12 @@ public class ProdutoFornecedorEntity {
 
     @ManyToOne
     @JoinColumn(name = "insumo_id", nullable = false)
+    @JsonBackReference
     private InsumoEntity insumo;
 
     @ManyToOne
     @JoinColumn(name = "fornecedor_id", nullable = false)
+    @JsonBackReference
     private FornecedorEntity fornecedor;
 
     @Column(nullable = false)
@@ -35,6 +38,7 @@ public class ProdutoFornecedorEntity {
 
     @ManyToOne
     @JoinColumn(name = "marca_id", nullable = false)
+    @JsonBackReference
     private MarcaEntity marca;
 
     @Column(name = "modelo", nullable = false)

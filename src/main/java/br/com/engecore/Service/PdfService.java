@@ -1,9 +1,11 @@
 package br.com.engecore.Service;
 
 import br.com.engecore.DTO.AcompanhamentoFaseDTO;
+import br.com.engecore.DTO.CotacaoDetalhesDTO; // Importar DTO
 import br.com.engecore.DTO.CurvaAbcDTO;
 import br.com.engecore.DTO.DreObraDTO;
 import br.com.engecore.DTO.MaterialEstoqueResponse;
+import br.com.engecore.DTO.PropostaCotacaoDTO; // Importar DTO
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -71,7 +73,7 @@ public class PdfService {
             }
 
             // Adiciona a linha do item
-            sbRows.append("<tr class='item-row'>")
+            sbRows.append("<tr class='item-row'>") // Corrigido 'class'
                     .append("<td class='material'>").append(escapeHtml(item.getMaterial())).append("</td>")
                     .append("<td style='text-align: right;' class='qty-atual'>").append(formatarNumero(item.getQuantidadeAtual())).append("</td>")
                     .append("<td style='text-align: right;'>").append(formatarNumero(item.getQuantidadeMinima())).append("</td>")
@@ -164,6 +166,47 @@ public class PdfService {
         return converterHtmlParaPdf(html, "relatorios/");
     }
 
+    // ===================================================================================
+    // MÉTODO PÚBLICO 5: GERAR PDF DE COTAÇÃO
+    // ===================================================================================
+    public byte[] gerarPdfCotacaoHtml(CotacaoDetalhesDTO cotacaoInfo, List<PropostaCotacaoDTO> propostas) throws IOException {
+        String html = carregarTemplateHtml("cotacao_template.html");
+
+        // --- Preencher placeholders de Informações ---
+        html = html.replace("{{dataGeracao}}", LocalDate.now().format(DATE_FORMATTER));
+        html = html.replace("{{cotacaoId}}", cotacaoInfo.getId().toString());
+        html = html.replace("{{nomeObra}}", escapeHtml(cotacaoInfo.getNomeObra()));
+
+        // CORREÇÃO 1: Acessar o insumo e depois o nome
+        html = html.replace("{{nomeInsumo}}", escapeHtml(cotacaoInfo.getInsumo().getNome()));
+        html = html.replace("{{status}}", escapeHtml(cotacaoInfo.getStatus()));
+
+        // CORREÇÃO 2: Acessar o insumo, a unidade (Enum) e converter para String
+        String qtdFormatada = formatarNumero(cotacaoInfo.getQuantidade()) + " " + escapeHtml(cotacaoInfo.getInsumo().getUnidade().toString());
+        html = html.replace("{{quantidade}}", qtdFormatada);
+        html = html.replace("{{dataNecessidade}}", formatarData(cotacaoInfo.getDataNecessidade()));
+        html = html.replace("{{solicitante}}", escapeHtml(cotacaoInfo.getFuncionarioSolicitante()));
+
+        // --- Gerar as linhas da tabela dinamicamente ---
+        StringBuilder sbRows = new StringBuilder();
+        for (PropostaCotacaoDTO prop : propostas) {
+
+            // Adiciona classe CSS se for o melhor preço
+            String cssClass = prop.isMelhorPreco() ? "item-row best-price" : "item-row";
+
+            sbRows.append("<tr class='").append(cssClass).append("'>")
+                    .append("<td>").append(escapeHtml(prop.getFornecedor())).append("</td>")
+                    .append("<td>").append(escapeHtml(prop.getCnpj())).append("</td>")
+                    .append("<td style='text-align: right;'>").append(formatarMoeda(prop.getValorUnitario())).append("</td>")
+                    .append("<td>").append(escapeHtml(prop.getPrazoEntrega())).append("</td>")
+                    .append("<td>").append(escapeHtml(prop.getCondicaoPagamento())).append("</td>")
+                    .append("</tr>");
+        }
+
+        html = html.replace("{{tabelaPropostas}}", sbRows.toString());
+
+        return converterHtmlParaPdf(html, "relatorios/");
+    }
 
     // ===================================================================================
     // MÉTODOS AUXILIARES PRIVADOS

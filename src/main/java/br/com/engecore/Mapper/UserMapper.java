@@ -1,9 +1,6 @@
 package br.com.engecore.Mapper;
 
-import br.com.engecore.DTO.ClienteDTO;
-import br.com.engecore.DTO.FuncionarioDTO;
-import br.com.engecore.DTO.FuncionarioResponse;
-import br.com.engecore.DTO.UserDTO;
+import br.com.engecore.DTO.*;
 import br.com.engecore.Entity.*;
 import br.com.engecore.Repository.UsuarioFisicoRepository;
 import br.com.engecore.Repository.UsuarioJuridicoRepository;
@@ -117,6 +114,37 @@ public class UserMapper {
         }
 
         UsuarioJuridico uj = usuarioJuridicoRepository.findByUsuarioId(cliente.getId());
+        if (uj != null) {
+            dto.setCnpj(uj.getCnpj());
+            dto.setRazaoSocial(uj.getRazaoSocial());
+            dto.setNomeFantasia(uj.getNomeFantasia());
+            dto.setInscricaoEstadual(uj.getInscricaoEstadual());
+        }
+
+        return dto;
+    }
+
+    public FornecedorDTO toFornecedorDTO(FornecedorEntity fornecedor) {
+        if (fornecedor == null) return null;
+
+        FornecedorDTO dto = new FornecedorDTO();
+        dto.setId(fornecedor.getId());
+        dto.setNome(fornecedor.getNome());
+        dto.setEmail(fornecedor.getEmail());
+        dto.setTelefone(fornecedor.getTelefone());
+        dto.setStatus(fornecedor.getStatus());
+        dto.setRole(fornecedor.getRole());
+        dto.setTipoPessoa(fornecedor.getTipoPessoa());
+
+        // Busca dados de PF/PJ
+        UsuarioFisico uf = usuarioFisicoRepository.findByUsuarioId(fornecedor.getId());
+        if (uf != null) {
+            dto.setCpf(uf.getCpf());
+            dto.setRg(uf.getRg());
+            dto.setDataNascimento(uf.getDataNascimento());
+        }
+
+        UsuarioJuridico uj = usuarioJuridicoRepository.findByUsuarioId(fornecedor.getId());
         if (uj != null) {
             dto.setCnpj(uj.getCnpj());
             dto.setRazaoSocial(uj.getRazaoSocial());
