@@ -62,7 +62,10 @@ public class ObrasEntity{
     // Programas sociais
     @Enumerated(EnumType.STRING)
     private FaixaRenda faixaRenda;
+
     private Boolean documentacaoAprovada;
+
+    @Enumerated(EnumType.STRING)
     private ProgramaSocial programaSocial;
 
     // Datas importantes
@@ -77,8 +80,8 @@ public class ObrasEntity{
     @JsonManagedReference
     private List<FasesEntity> fases;
 
-
-    @OneToOne(mappedBy = "obra", cascade = CascadeType.ALL)
-    @JsonManagedReference
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "estoque_id")
+    @JsonManagedReference(value = "obra-estoque")
     private EstoqueEntity estoque;
 }
