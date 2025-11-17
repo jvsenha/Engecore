@@ -26,6 +26,7 @@ public class ObrasDTO {
     private Long clienteId;
     private Long responsavelId;
     private String clienteNome;
+    private String clienteTelefone;
     private String responsavelNome;
 
     // Dados de unidades (para obras sociais)

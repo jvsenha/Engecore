@@ -40,6 +40,7 @@ public class ObrasMapper {
         if (entity.getCliente() != null) {
             dto.setClienteId(entity.getCliente().getId());
             dto.setClienteNome(entity.getCliente().getNome() != null ? entity.getCliente().getNome() : "");
+            dto.setClienteTelefone(entity.getCliente().getTelefone() != null ? entity.getCliente().getTelefone() : "");
         }
 
         // Responsável

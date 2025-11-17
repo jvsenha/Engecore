@@ -4,8 +4,10 @@ import br.com.engecore.DTO.LoginRequest;
 import br.com.engecore.DTO.LoginResponse;
 import br.com.engecore.DTO.UserDTO;
 import br.com.engecore.Entity.UserEntity;
+import br.com.engecore.Entity.UsuarioFisico;
 import br.com.engecore.Enum.Role;
 import br.com.engecore.Enum.Status;
+import br.com.engecore.Enum.TipoPessoa;
 import br.com.engecore.Mapper.UserMapper;
 import br.com.engecore.Repository.UserRepository;
 import br.com.engecore.Repository.UsuarioFisicoRepository;
@@ -65,6 +67,7 @@ public class UserService {
     @Transactional
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncAdm(authentication)")
     public UserDTO cadastrar(UserDTO dto) {
+        // Criar usuário principal
         UserEntity user = new UserEntity();
         user.setNome(dto.getNome());
         user.setEmail(dto.getEmail());
@@ -75,6 +78,21 @@ public class UserService {
         user.setTipoPessoa(dto.getTipoPessoa());
 
         userRepository.save(user);
+
+        // 🔥 Se for pessoa física, cria o registro em usuario_fisico
+        if (dto.getTipoPessoa() == TipoPessoa.FISICA) {
+
+            UsuarioFisico uf = new UsuarioFisico();
+
+            // O MapsId cuida de copiar o ID do user, então NÃO SETE id!
+            uf.setUsuario(user);
+            uf.setCpf(dto.getCpf()); // precisa estar no DTO!
+            uf.setRg(dto.getRg());   // idem
+            uf.setDataNascimento(dto.getDataNascimento());
+
+            usuarioFisicoRepository.save(uf);
+        }
+
 
         return UserMapper.toUserDTO(user);
     }

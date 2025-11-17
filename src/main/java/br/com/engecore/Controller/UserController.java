@@ -94,13 +94,13 @@ public class UserController {
     }
 
 
-    @GetMapping("listar/ativos")
+    @GetMapping("/listar/ativos")
     public ResponseEntity<ApiResponse<List<UserEntity>>> listarAtivos() {
         return ResponseEntity.ok(new ApiResponse<>(true, "Lista de usuários ativos", userService.listarAtivos()));
     }
 
 
-    @GetMapping("listar/inativos")
+    @GetMapping("/listar/inativos")
     public ResponseEntity<ApiResponse<List<UserEntity>>> listarInativos() {
         return ResponseEntity.ok(new ApiResponse<>(true, "Lista de usuários inativos", userService.listarInativos()));
     }
