@@ -2,6 +2,7 @@ package br.com.engecore.Repository;
 
 import br.com.engecore.Entity.FornecedorEntity;
 import br.com.engecore.Entity.InsumoEntity;
+import br.com.engecore.Entity.MarcaEntity;
 import br.com.engecore.Entity.ProdutoFornecedorEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -19,4 +20,11 @@ public interface ProdutoFornecedorRepository extends JpaRepository<ProdutoFornec
 
     // Busca uma oferta específica de um insumo de um fornecedor
     Optional<ProdutoFornecedorEntity> findByInsumoAndFornecedor(InsumoEntity insumo, FornecedorEntity fornecedor);
+
+    Optional<ProdutoFornecedorEntity> findByInsumoAndFornecedorAndMarcaAndModelo(
+            InsumoEntity insumo,
+            FornecedorEntity fornecedor,
+            MarcaEntity marca,
+            String modelo
+    );
 }

@@ -38,10 +38,10 @@ public class ProdutoFornecedorController {
      * Endpoint para listar todos os produtos de um fornecedor específico.
      */
     @GetMapping("/listar/{fornecedorId}")
-    public ResponseEntity<ApiResponse<List<ProdutoFornecedorEntity>>> listarProdutos(
+    public ResponseEntity<ApiResponse<List<ProdutoFornecedorDTO>>> listarProdutos(
             @PathVariable Long fornecedorId) {
         try {
-            List<ProdutoFornecedorEntity> produtos = produtoFornecedorService.listarProdutosPorFornecedor(fornecedorId);
+            List<ProdutoFornecedorDTO> produtos = produtoFornecedorService.listarProdutosPorFornecedor(fornecedorId);
             return ResponseEntity.ok(
                     new ApiResponse<>(true, "Produtos listados com sucesso", produtos)
             );

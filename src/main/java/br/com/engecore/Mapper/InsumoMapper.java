@@ -25,6 +25,7 @@ public class InsumoMapper {
 
         InsumoDTO dto = new InsumoDTO();
         dto.setNome(entity.getNome());
+        dto.setId(entity.getId());
         dto.setUnidade(entity.getUnidade());
         return dto;
     }

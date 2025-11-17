@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors; // Importar Collectors
 
 @Service
 public class ProdutoFornecedorService {
@@ -30,9 +31,8 @@ public class ProdutoFornecedorService {
     @Autowired
     private FornecedorRepository fornecedorRepository;
 
-    // Você precisará criar este repositório
     @Autowired
-    private MarcaRepository marcaRepository; // DESCOMENTADO
+    private MarcaRepository marcaRepository;
 
     /**
      * Cadastra ou atualiza um produto no catálogo de um fornecedor.
@@ -48,13 +48,11 @@ public class ProdutoFornecedorService {
         InsumoEntity insumo = insumoRepository.findById(dto.getInsumoId())
                 .orElseThrow(() -> new RuntimeException("Insumo não encontrado"));
 
-        // MARCA - Agora está funcional
         MarcaEntity marca = marcaRepository.findById(dto.getMarcaId())
                 .orElseThrow(() -> new RuntimeException("Marca não encontrada"));
 
         // Procura se o fornecedor já vende este insumo (com este modelo e marca)
-        // A lógica de "findByInsumoAndFornecedor" talvez precise ser mais específica
-        Optional<ProdutoFornecedorEntity> existing = produtoFornecedorRepository.findByInsumoAndFornecedor(insumo, fornecedor);
+        Optional<ProdutoFornecedorEntity> existing = produtoFornecedorRepository.findByInsumoAndFornecedorAndMarcaAndModelo(insumo, fornecedor, marca, dto.getModelo());
 
         ProdutoFornecedorEntity produtoFornecedor;
         if (existing.isPresent()) {
@@ -65,12 +63,12 @@ public class ProdutoFornecedorService {
             produtoFornecedor = new ProdutoFornecedorEntity();
             produtoFornecedor.setFornecedor(fornecedor);
             produtoFornecedor.setInsumo(insumo);
+            produtoFornecedor.setMarca(marca);
+            produtoFornecedor.setModelo(dto.getModelo());
         }
 
-        // Atualiza todos os campos
+        // Atualiza os campos
         produtoFornecedor.setValor(dto.getValor());
-        produtoFornecedor.setModelo(dto.getModelo());
-        produtoFornecedor.setMarca(marca); // DESCOMENTADO
         produtoFornecedor.setPrazoEntrega(dto.getPrazoEntrega());
         produtoFornecedor.setCondicaoPagamento(dto.getCondicaoPagamento());
         produtoFornecedor.setObservacoes(dto.getObservacoes());
@@ -79,8 +77,55 @@ public class ProdutoFornecedorService {
         return produtoFornecedorRepository.save(produtoFornecedor);
     }
 
+    /**
+     * Endpoint para listar todos os produtos de um fornecedor específico.
+     * AGORA RETORNA UM DTO COM OS NOMES.
+     */
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication) or @securityService.isFornecedor(authentication)")
-    public List<ProdutoFornecedorEntity> listarProdutosPorFornecedor(Long fornecedorId) {
-        return produtoFornecedorRepository.findByFornecedorId(fornecedorId);
+    public List<ProdutoFornecedorDTO> listarProdutosPorFornecedor(Long fornecedorId) {
+        // 1. Busca as Entidades do repositório
+        List<ProdutoFornecedorEntity> entidades = produtoFornecedorRepository.findByFornecedorId(fornecedorId);
+
+        // 2. Converte cada Entidade para DTO usando o helper
+        return entidades.stream()
+                .map(this::mapEntityToDTO)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Método auxiliar privado para converter a Entidade em DTO.
+     */
+    private ProdutoFornecedorDTO mapEntityToDTO(ProdutoFornecedorEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+
+        ProdutoFornecedorDTO dto = new ProdutoFornecedorDTO();
+
+        // ID da própria relação (útil para o frontend)
+        dto.setId(entity.getId());
+
+        dto.setModelo(entity.getModelo());
+        dto.setValor(entity.getValor());
+        dto.setPrazoEntrega(entity.getPrazoEntrega());
+        dto.setCondicaoPagamento(entity.getCondicaoPagamento());
+        dto.setObservacoes(entity.getObservacoes());
+
+        // IDs E NOMES (A CORREÇÃO)
+        if (entity.getInsumo() != null) {
+            dto.setInsumoId(entity.getInsumo().getId());
+            dto.setInsumoNome(entity.getInsumo().getNome()); // <-- Nome do Insumo
+        }
+
+        if (entity.getFornecedor() != null) {
+            dto.setFornecedorId(entity.getFornecedor().getId());
+        }
+
+        if (entity.getMarca() != null) {
+            dto.setMarcaId(entity.getMarca().getId());
+            dto.setMarcaNome(entity.getMarca().getNome()); // <-- Nome da Marca
+        }
+
+        return dto;
     }
 }
