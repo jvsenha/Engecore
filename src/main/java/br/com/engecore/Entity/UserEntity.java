@@ -38,7 +38,7 @@ public class UserEntity {
 
     @NotBlank(message = "Telefone é obrigatorio")
     @Column(name = "telefone", unique = true, nullable = false)
-    @Pattern( regexp = "\\([1-9]{2}\\)\\s9[0-9]{4}-[0-9]{4}", message = "Telefone deve estar no formato (99) 99999-9999")
+    @Pattern( regexp = "\\([1-9]{2}\\)\\s(9[0-9]{4}|[0-9]{4})-[0-9]{4}", message = "Telefone deve estar no formato (99) 99999-9999 ou (99) 9999-9999")
     private String telefone;
 
     @Enumerated(EnumType.STRING)

@@ -17,10 +17,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FuncionarioService {
-
 
     @Autowired
     private FuncionarioRepository funcionarioRepository;
@@ -93,39 +93,60 @@ public class FuncionarioService {
     public FuncionarioDTO atualizarPorAdmFuncionario(Long id, FuncionarioDTO dto) {
         FuncionarioEntity func = funcionarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("funcionario não encontrado"));
-        ;
 
-        func.setNome(dto.getNome());
-        func.setEmail(dto.getEmail());
-        func.setSenha(passwordEncoder.encode(dto.getSenha()));
-        func.setTelefone(dto.getTelefone());
-        func.setStatus(dto.getStatus() != null ? dto.getStatus() : Status.STATUS_ATIVO);
-        func.setRole(dto.getRole());
+        // Atualiza campos de UserEntity
+        if (dto.getNome() != null) func.setNome(dto.getNome());
+        if (dto.getEmail() != null) func.setEmail(dto.getEmail());
+        if (dto.getTelefone() != null) func.setTelefone(dto.getTelefone());
+        if (dto.getStatus() != null) func.setStatus(dto.getStatus());
+        if (dto.getRole() != null) func.setRole(dto.getRole());
+        if (dto.getTipoPessoa() != null) func.setTipoPessoa(dto.getTipoPessoa());
 
-        func.setCargo(dto.getCargo());
-        func.setSalario(dto.getSalario());
-        func.setDataAdmissao(dto.getDataAdmissao());
+        // Atualiza senha apenas se enviada
+        if (dto.getSenha() != null && !dto.getSenha().isBlank()) {
+            func.setSenha(passwordEncoder.encode(dto.getSenha()));
+        }
+
+        // Atualiza campos de FuncionarioEntity
+        if (dto.getCargo() != null) func.setCargo(dto.getCargo());
+        if (dto.getSalario() != null) func.setSalario(dto.getSalario());
+        if (dto.getDataAdmissao() != null) func.setDataAdmissao(dto.getDataAdmissao());
+
+        // ------------------------------
+        //       CORREÇÃO AQUI
+        // ------------------------------
+
+        switch (func.getTipoPessoa()) {
+
+            case FISICA:
+                UsuarioFisico pf = usuarioFisicoRepository.findById(id)
+                        .orElse(new UsuarioFisico()); // ← não lança erro
+
+                pf.setUsuario(func); // importante garantir vínculo
+
+                if (dto.getCpf() != null) pf.setCpf(dto.getCpf());
+                if (dto.getRg() != null) pf.setRg(dto.getRg());
+                if (dto.getDataNascimento() != null) pf.setDataNascimento(dto.getDataNascimento());
+
+                usuarioFisicoRepository.save(pf);
+                break;
+
+            case JURIDICA:
+                UsuarioJuridico pj = usuarioJuridicoRepository.findById(id)
+                        .orElse(new UsuarioJuridico()); // ← não lança erro
+
+                pj.setUsuario(func); // garante o vínculo
+
+                if (dto.getCnpj() != null) pj.setCnpj(dto.getCnpj());
+                if (dto.getRazaoSocial() != null) pj.setRazaoSocial(dto.getRazaoSocial());
+                if (dto.getNomeFantasia() != null) pj.setNomeFantasia(dto.getNomeFantasia());
+                if (dto.getInscricaoEstadual() != null) pj.setInscricaoEstadual(dto.getInscricaoEstadual());
+
+                usuarioJuridicoRepository.save(pj);
+                break;
+        }
 
         funcionarioRepository.save(func);
-
-        if (func.getTipoPessoa() == TipoPessoa.FISICA) {
-            UsuarioFisico fisico = usuarioFisicoRepository.findById(func.getId())
-                    .orElse(new UsuarioFisico());
-            fisico.setUsuario(func);
-            fisico.setCpf(dto.getCpf());
-            fisico.setRg(dto.getRg());
-            fisico.setDataNascimento(dto.getDataNascimento());
-            usuarioFisicoRepository.save(fisico);
-        } else if (func.getTipoPessoa() == TipoPessoa.JURIDICA) {
-            UsuarioJuridico juridico = usuarioJuridicoRepository.findById(func.getId())
-                    .orElse(new UsuarioJuridico());
-            juridico.setUsuario(func);
-            juridico.setCnpj(dto.getCnpj());
-            juridico.setRazaoSocial(dto.getRazaoSocial());
-            juridico.setNomeFantasia(dto.getNomeFantasia());
-            juridico.setInscricaoEstadual(dto.getInscricaoEstadual());
-            usuarioJuridicoRepository.save(juridico);
-        }
 
         return userMapper.toFuncionarioDTO(func);
     }
@@ -140,21 +161,23 @@ public class FuncionarioService {
 
         FuncionarioEntity func = funcionarioRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("funcionario não encontrado"));
-        ;
 
-        func.setNome(dto.getNome());
-        func.setEmail(dto.getEmail());
-        func.setSenha(passwordEncoder.encode(dto.getSenha()));
-        func.setTelefone(dto.getTelefone());
-        func.setStatus(dto.getStatus() != null ? dto.getStatus() : Status.STATUS_ATIVO);
-        func.setRole(dto.getRole());
+        // Atualiza campos (se não for nulo)
+        if (dto.getNome() != null) func.setNome(dto.getNome());
+        if (dto.getEmail() != null) func.setEmail(dto.getEmail());
+        if (dto.getTelefone() != null) func.setTelefone(dto.getTelefone());
+        if (dto.getStatus() != null) func.setStatus(dto.getStatus());
+        if (dto.getRole() != null) func.setRole(dto.getRole());
+        if (dto.getCargo() != null) func.setCargo(dto.getCargo());
+        if (dto.getSalario() != null) func.setSalario(dto.getSalario());
+        if (dto.getDataAdmissao() != null) func.setDataAdmissao(dto.getDataAdmissao());
 
-        func.setCargo(dto.getCargo());
-        func.setSalario(dto.getSalario());
-        func.setDataAdmissao(dto.getDataAdmissao());
+        // Lógica da Senha: Só atualiza se for enviada uma nova senha
+        if (dto.getSenha() != null && !dto.getSenha().isBlank()) {
+            func.setSenha(passwordEncoder.encode(dto.getSenha()));
+        }
 
         funcionarioRepository.save(func);
-
         return userMapper.toFuncionarioDTO(func);
     }
 
@@ -188,10 +211,10 @@ public class FuncionarioService {
 
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
     public List<FuncionarioResponse> listar() {
-         List<FuncionarioEntity> funcionarios = funcionarioRepository.findAll();
+        List<FuncionarioEntity> funcionarios = funcionarioRepository.findAll();
         return funcionarios.stream()
                 .map(userMapper::toFuncionarioResponse)
-                .toList();
+                .collect(Collectors.toList());
     }
 
 }
