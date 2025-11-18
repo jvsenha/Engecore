@@ -14,5 +14,6 @@ public record InsumoDisponivelDTO(
         BigDecimal quantidadeMaxima,
         BigDecimal valorUni,
         String marcaNome,       // Informação extra útil
-        String modelo) {
+        String modelo,
+        boolean estoqueCritico) {
 }

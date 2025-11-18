@@ -58,7 +58,7 @@ public class MaterialEstoqueMapper {
         response.setQuantidadeAtual(entity.getQuantidadeAtual());
         response.setQuantidadeMinima(entity.getQuantidadeMinima());
         response.setQuantidadeMaxima(entity.getQuantidadeMaxima() != null ? entity.getQuantidadeMaxima() : BigDecimal.ZERO);
-
+        response.setEstoqueCritico(entity.isEstoqueCritico());
         return response;
     }
 }

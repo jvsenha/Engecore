@@ -91,6 +91,14 @@ public class MaterialEstoqueService {
         return materialEstoqueRepository.findAll();
     }
 
+    public List<InsumoDisponivelDTO> listarTodosInsumos() {
+        return materialEstoqueRepository.findAll()
+                .stream()
+                .map(this::mapToInsumoDisponivelDTO)
+                .toList();
+    }
+
+
     public MaterialEstoqueResponse detalhesMaterialEstoque(Long id) {
         MaterialEstoque estoqueMaterial = materialEstoqueRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Material em estoque não encontrado"));
@@ -136,7 +144,8 @@ public class MaterialEstoqueService {
                 material.getQuantidadeMaxima(),
                 material.getValor(),
                 marca != null ? marca.getNome() : "Sem Marca",
-                material.getModelo()
+                material.getModelo(),
+                material.isEstoqueCritico()
         );
     }
     @Transactional

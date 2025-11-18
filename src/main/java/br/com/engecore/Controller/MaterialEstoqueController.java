@@ -2,7 +2,9 @@ package br.com.engecore.Controller;
 
 import br.com.engecore.DTO.ApiResponse;
 import br.com.engecore.DTO.InsumoDisponivelDTO;
+import br.com.engecore.DTO.MaterialEstoqueResponse;
 import br.com.engecore.DTO.MaterialEstoqueUpdateDTO;
+import br.com.engecore.Entity.MaterialEstoque;
 import br.com.engecore.Service.MaterialEstoqueService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -43,4 +45,11 @@ public class MaterialEstoqueController {
         // materialEstoqueService.deletarItemEstoque(id);
         return ResponseEntity.ok(new ApiResponse<>(true, "Item deletado com sucesso", null));
     }
+
+    @GetMapping("/listar")
+    public ResponseEntity<List<InsumoDisponivelDTO>> getInsumos() {
+        List<InsumoDisponivelDTO> insumos = materialEstoqueService.listarTodosInsumos();
+        return ResponseEntity.ok(insumos);
+    }
+
 }
