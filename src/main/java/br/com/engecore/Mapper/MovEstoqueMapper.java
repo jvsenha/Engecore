@@ -55,6 +55,8 @@ public class MovEstoqueMapper {
         response.setMaterial(entity.getInsumo() != null ? entity.getInsumo().getNome() : null);
         response.setEstoqueOrigem(entity.getEstoqueOrigem() != null ? entity.getEstoqueOrigem().getId() : null);
         response.setEstoqueDestino(entity.getEstoqueDestino() != null ? entity.getEstoqueDestino().getId() : null);
+        response.setNomeOrigem(entity.getEstoqueOrigem() != null ? entity.getEstoqueOrigem().getNome() : null);
+        response.setNomeDestino(entity.getEstoqueDestino() != null ? entity.getEstoqueDestino().getNome() : null);
         response.setQuantidade(entity.getQuantidade());
         response.setTipoMov(entity.getTipoMov());
         response.setDataMovimentacao(entity.getDataMovimentacao());

@@ -14,4 +14,5 @@ public interface MaterialEstoqueRepository extends JpaRepository<MaterialEstoque
     Optional<MaterialEstoque> findByEstoqueAndMaterial(EstoqueEntity estoque, InsumoEntity material);
     @Query("SELECT m FROM MaterialEstoque m WHERE m.quantidadeAtual <= m.quantidadeMinima")
     List<MaterialEstoque> findEstoqueCritico();
+    List<MaterialEstoque> findByEstoque_Id(Long estoqueId);
 }

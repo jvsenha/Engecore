@@ -16,6 +16,8 @@ public class MovEstoqueResponse {
     private String material;
     private Long estoqueOrigem;
     private Long estoqueDestino;
+    private String nomeOrigem;
+    private String nomeDestino;
     private BigDecimal quantidade;
     private TipoMov tipoMov;
     private LocalDate dataMovimentacao;

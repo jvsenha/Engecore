@@ -20,6 +20,7 @@ public class EstoqueEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String nome; // Ex: "Estoque Obra 01", "Estoque Empresa"
 
     @Enumerated(EnumType.STRING)
