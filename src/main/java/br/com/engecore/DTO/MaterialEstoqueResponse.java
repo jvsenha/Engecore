@@ -23,4 +23,6 @@ public class MaterialEstoqueResponse {
     private BigDecimal quantidadeAtual;
     private BigDecimal quantidadeMinima;
     private BigDecimal quantidadeMaxima;
+
+    private boolean estoqueCritico;
 }
