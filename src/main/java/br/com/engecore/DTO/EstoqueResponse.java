@@ -11,6 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EstoqueResponse {
+    private Long id;
     private String nomeObra;
     private String nome;
     private TipoEstoque tipo;

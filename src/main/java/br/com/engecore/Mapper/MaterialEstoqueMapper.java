@@ -53,8 +53,31 @@ public class MaterialEstoqueMapper {
         }
 
         MaterialEstoqueResponse response = new MaterialEstoqueResponse();
-        response.setEstoque(entity.getEstoque().getNome());
-        response.setMaterial(entity.getMaterial().getNome());
+
+        // IDs principais
+        response.setMaterialEstoqueId(entity.getId());
+
+        // Dados do Estoque
+        if (entity.getEstoque() != null) {
+            response.setEstoque(entity.getEstoque().getNome());
+        }
+
+        // Dados do Insumo
+        if (entity.getMaterial() != null) {
+            response.setInsumoId(entity.getMaterial().getId());
+            response.setMaterial(entity.getMaterial().getNome());
+            response.setUnidade(entity.getMaterial().getUnidade());
+        }
+
+        // Dados da Marca e Modelo (ESSENCIAIS PARA TRANSFERÊNCIA)
+        if (entity.getMarca() != null) {
+            response.setMarcaId(entity.getMarca().getId());
+            response.setMarcaNome(entity.getMarca().getNome());
+        }
+        response.setModelo(entity.getModelo());
+        response.setValor(entity.getValor());
+
+        // Quantidades
         response.setQuantidadeAtual(entity.getQuantidadeAtual());
         response.setQuantidadeMinima(entity.getQuantidadeMinima());
         response.setQuantidadeMaxima(entity.getQuantidadeMaxima() != null ? entity.getQuantidadeMaxima() : BigDecimal.ZERO);

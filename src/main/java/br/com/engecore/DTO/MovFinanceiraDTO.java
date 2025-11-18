@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MovFinanceiraDTO {
+    private Long id;
     private BigDecimal valor;
     private TipoMovFinanceiro tipo;
     private CategoriaFinanceira categoriaFinanceira;

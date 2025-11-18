@@ -34,4 +34,10 @@ public class PropostaCotacaoDTO {
 
     // Flag para o frontend destacar (ex: "fas fa-star")
     private boolean melhorPreco;
+
+    // NOVO: Nome da marca do produto
+    private String marcaNome; // <-- Adicionar este campo
+
+    // NOVO: Modelo/especificação do produto
+    private String modelo; // <-- Adicionar este campo
 }

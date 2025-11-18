@@ -1,9 +1,6 @@
 package br.com.engecore.Entity;
 
-import br.com.engecore.Enum.FaixaRenda;
-import br.com.engecore.Enum.ProgramaSocial;
-import br.com.engecore.Enum.StatusConst;
-import br.com.engecore.Enum.TipoObra;
+import br.com.engecore.Enum.*;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -27,6 +24,7 @@ public class ObrasEntity{
     private Long id;
 
     // Informações básicas da obra
+    @Column(name = "nomeObra", unique = true)
     private String nomeObra;
 
     @Embedded

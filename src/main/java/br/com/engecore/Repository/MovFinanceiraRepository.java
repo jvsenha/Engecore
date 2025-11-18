@@ -23,6 +23,14 @@ public interface MovFinanceiraRepository extends JpaRepository<MovFinanceiraEnti
 
  List<MovFinanceiraEntity> findByClienteId(Long clienteId);
 
+ @Query("SELECT m FROM MovFinanceiraEntity m " +
+         "LEFT JOIN m.obra o " +
+         "LEFT JOIN o.cliente c " +
+         "WHERE m.cliente.id = :clienteId " +
+         "OR (o IS NOT NULL AND c.id = :clienteId)")
+ List<MovFinanceiraEntity> findByClienteIdCompleto(@Param("clienteId") Long clienteId);
+
+
  @Query("SELECT SUM(m.valor) FROM MovFinanceiraEntity m WHERE m.obra.id = :obraId AND m.tipo = :tipoDespesa")
  BigDecimal sumDespesasByObraId(
          @Param("obraId") Long obraId,

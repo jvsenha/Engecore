@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 @Component
 public class CotacaoMapper {
@@ -94,14 +96,34 @@ public class CotacaoMapper {
         PropostaCotacaoDTO dto = new PropostaCotacaoDTO();
         dto.setId(proposta.getId());
 
+        // --- Lógica existente para Fornecedor (Nome e CNPJ) ---
         if (proposta.getProdutoFornecedor() != null && proposta.getProdutoFornecedor().getFornecedor() != null) {
             FornecedorEntity fornecedor = proposta.getProdutoFornecedor().getFornecedor();
+
             dto.setFornecedor(getNomeDoFornecedor(fornecedor));
             dto.setCnpj(getIdentificadorFornecedor(fornecedor));
         } else {
             dto.setFornecedor("Fornecedor não informado");
             dto.setCnpj("N/A");
         }
+
+        // --- NOVO: Lógica para Marca e Modelo ---
+        ProdutoFornecedorEntity produtoFornecedor = proposta.getProdutoFornecedor();
+        if (produtoFornecedor != null) {
+            // 1. Adicionar Modelo
+            dto.setModelo(produtoFornecedor.getModelo());
+
+            // 2. Adicionar Marca
+            if (produtoFornecedor.getMarca() != null) {
+                dto.setMarcaNome(produtoFornecedor.getMarca().getNome()); // <--- CORREÇÃO: Usar getMarca().getNome()
+            } else {
+                dto.setMarcaNome("N/A");
+            }
+        } else {
+            dto.setModelo("N/A");
+            dto.setMarcaNome("N/A");
+        }
+        // --- Fim do Novo ---
 
         dto.setValorUnitario(proposta.getValorUnitario());
         dto.setPrazoEntrega(proposta.getPrazoEntrega());
@@ -143,24 +165,34 @@ public class CotacaoMapper {
         return "N/A";
     }
 
-    public CotacaoDetalhesDTO toDetalhesDTO(CotacaoEntity entity) {
-        if (entity == null) return null;
+    public CotacaoDetalhesDTO toDetalhesDTO(CotacaoEntity cotacao) {
+        if (cotacao == null) return null;
 
         CotacaoDetalhesDTO dto = new CotacaoDetalhesDTO();
-        dto.setId(entity.getId());
-        dto.setInsumo(entity.getInsumo());
-        dto.setQuantidade(entity.getQuantidade());
-        dto.setDataNecessidade(entity.getDataNecessidade());
-        dto.setPrioridade(entity.getPrioridade());
-        dto.setStatus(entity.getStatus());
-        dto.setPropostas(entity.getPropostas());
+        dto.setId(cotacao.getId());
 
-        // Mapeia apenas os nomes de entidades relacionadas
-        if (entity.getObra() != null) {
-            dto.setNomeObra(entity.getObra().getNomeObra());
+        if (cotacao.getObra() != null) {
+            dto.setNomeObra(cotacao.getObra().getNomeObra());
         }
-        if (entity.getFuncionarioSolicitante() != null) {
-            dto.setFuncionarioSolicitante(entity.getFuncionarioSolicitante().getNome());
+
+        dto.setInsumo(cotacao.getInsumo()); // InsumoEntity pode ir direto se não tiver ciclo
+        dto.setQuantidade(cotacao.getQuantidade());
+        dto.setDataNecessidade(cotacao.getDataNecessidade());
+        dto.setPrioridade(cotacao.getPrioridade());
+        dto.setStatus(cotacao.getStatus());
+
+        if (cotacao.getFuncionarioSolicitante() != null) {
+            dto.setFuncionarioSolicitante(cotacao.getFuncionarioSolicitante().getNome());
+        }
+
+        // AQUI ESTÁ A CORREÇÃO PRINCIPAL:
+        // Converte a lista de Entities para lista de DTOs usando o método toPropostaDTO existente
+        if (cotacao.getPropostas() != null) {
+            dto.setPropostas(cotacao.getPropostas().stream()
+                    .map(this::toPropostaDTO) // Usa o método que já cria o DTO plano (com marca e modelo)
+                    .collect(Collectors.toList()));
+        } else {
+            dto.setPropostas(new ArrayList<>());
         }
 
         return dto;

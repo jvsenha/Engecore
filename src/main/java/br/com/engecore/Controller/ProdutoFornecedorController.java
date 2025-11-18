@@ -51,5 +51,10 @@ public class ProdutoFornecedorController {
         }
     }
 
+    @DeleteMapping("/deletar/{id}")
+    public ResponseEntity<ApiResponse<Void>> deletarMaterialEstoque(@PathVariable("id") Long id) {
+        produtoFornecedorService.deletarProdutoForneceddor(id);
+        return ResponseEntity.ok(new ApiResponse<>(true, "Item deletado com sucesso", null));
+    }
 
 }

@@ -135,6 +135,7 @@ public class MaterialEstoqueService {
                 material.getQuantidadeMinima(),
                 material.getQuantidadeMaxima(),
                 material.getValor(),
+                marca != null ? marca.getId() : null,
                 marca != null ? marca.getNome() : "Sem Marca",
                 material.getModelo()
         );

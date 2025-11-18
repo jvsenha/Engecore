@@ -128,4 +128,12 @@ public class ProdutoFornecedorService {
 
         return dto;
     }
+
+    @Transactional
+    @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncAdm(authentication)")
+    public void deletarProdutoForneceddor(Long id) {
+        produtoFornecedorRepository.deleteById(id);
+    }
+
+
 }

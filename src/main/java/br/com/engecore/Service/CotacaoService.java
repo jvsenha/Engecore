@@ -33,6 +33,7 @@ public class CotacaoService {
     @Autowired private FuncionarioRepository funcionarioRepository;
     @Autowired private UsuarioJuridicoRepository usuarioJuridicoRepository;
     @Autowired private UsuarioFisicoRepository usuarioFisicoRepository;
+    @Autowired private EstoqueRepository estoqueRepository;
 
     // Outros Serviços
     @Autowired private MovEstoqueService movEstoqueService;
@@ -217,7 +218,7 @@ public class CotacaoService {
         movFinDTO.setFuncionarioResponsavelId(cotacao.getFuncionarioSolicitante().getId());
         movFinanceiroService.cadastrar(movFinDTO);
 
-        EstoqueEntity estoqueDaObra = cotacao.getObra().getEstoque();
+        EstoqueEntity estoqueDaObra = estoqueRepository.findByObra(cotacao.getObra());
         if (estoqueDaObra == null) {
             throw new RuntimeException("A Obra '" + cotacao.getObra().getNomeObra() + "' não possui um estoque associado!");
         }

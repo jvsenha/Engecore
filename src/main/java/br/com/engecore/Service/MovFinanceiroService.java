@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class MovFinanceiroService {
@@ -143,6 +144,17 @@ public class MovFinanceiroService {
         return movFinanceiraRepository.findAll();
     }
 
+    public List<MovFinanceiraDTO> listarPorCliente(Long clienteId) {
+        // ANTES: return movFinanceiraRepository.findByClienteId(clienteId)...
+
+        // AGORA: Usa a busca completa (Direto + via Obra)
+        List<MovFinanceiraEntity> movs = movFinanceiraRepository.findByClienteIdCompleto(clienteId);
+
+        return movs.stream()
+                .map(MovFinanceiraMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
     public List<MovFinanceiraEntity> listarPorObra(Long idObra) {
         return movFinanceiraRepository.findByObraId(idObra);
     }
@@ -186,5 +198,20 @@ public class MovFinanceiroService {
             }
         }
         return saldo;
+    }
+
+    public BigDecimal getSaldoCliente(Long clienteId) {
+        // Precisamos garantir que o saldo considere as obras do cliente também
+        List<MovFinanceiraEntity> movs = movFinanceiraRepository.findByClienteIdCompleto(clienteId);
+
+        return movs.stream()
+                .map(mov -> {
+                    if (mov.getTipo() == TipoMovFinanceiro.RECEITA) {
+                        return mov.getValor();
+                    } else {
+                        return mov.getValor().negate();
+                    }
+                })
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

@@ -13,6 +13,7 @@ public record InsumoDisponivelDTO(
         BigDecimal quantidadeMinima,
         BigDecimal quantidadeMaxima,
         BigDecimal valorUni,
+        Long marcaId,       // Informação extra útil
         String marcaNome,       // Informação extra útil
         String modelo) {
 }

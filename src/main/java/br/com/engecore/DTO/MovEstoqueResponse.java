@@ -13,6 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 public class MovEstoqueResponse {
     private Long id;
+    private Long insumoId;
     private String material;
     private Long estoqueOrigem;
     private Long estoqueDestino;

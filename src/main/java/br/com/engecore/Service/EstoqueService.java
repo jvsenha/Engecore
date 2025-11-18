@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class EstoqueService {
@@ -79,6 +80,7 @@ public class EstoqueService {
 
         return EstoqueMapper.toDTO(estoque);
     }
+
     @Transactional
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncionario(authentication)")
     public EstoqueResponse atualizarPorAdmFuncionario(Long id, EstoqueDTO dto) {
@@ -126,8 +128,11 @@ public class EstoqueService {
 
 
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncAdm(authentication)")
-    public List<EstoqueEntity> listar(){
-        return estoqueRepository.findAll();
+    public List<EstoqueResponse> listar(){
+        List<EstoqueEntity> estoques = estoqueRepository.findAll();
+        return estoques.stream()
+                .map(EstoqueMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     @PreAuthorize("@securityService.isAdmin(authentication) or @securityService.isFuncAdm(authentication)")

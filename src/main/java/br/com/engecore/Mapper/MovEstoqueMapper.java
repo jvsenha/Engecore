@@ -52,6 +52,7 @@ public class MovEstoqueMapper {
     public static MovEstoqueResponse toResponse(MovEstoqueEntity entity) {
         MovEstoqueResponse response = new MovEstoqueResponse();
         response.setId(entity.getId());
+        response.setInsumoId(entity.getInsumo() != null ? entity.getInsumo().getId() : null);
         response.setMaterial(entity.getInsumo() != null ? entity.getInsumo().getNome() : null);
         response.setEstoqueOrigem(entity.getEstoqueOrigem() != null ? entity.getEstoqueOrigem().getId() : null);
         response.setEstoqueDestino(entity.getEstoqueDestino() != null ? entity.getEstoqueDestino().getId() : null);

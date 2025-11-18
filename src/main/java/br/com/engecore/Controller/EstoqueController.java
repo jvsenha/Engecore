@@ -40,8 +40,8 @@ public class EstoqueController {
 
     // Listar todos os estoques
     @GetMapping("/listar")
-    public ResponseEntity<ApiResponse<List<EstoqueEntity>>> listarEstoque() {
-        List<EstoqueEntity> estoques = estoqueService.listar();
+    public ResponseEntity<ApiResponse<List<EstoqueResponse>>> listarEstoque() {
+        List<EstoqueResponse> estoques = estoqueService.listar();
         return ResponseEntity.ok(new ApiResponse<>(true, "Estoques encontrados", estoques));
     }
 

@@ -13,6 +13,7 @@ public class EstoqueMapper {
         if (entity == null) return null;
 
         EstoqueResponse dto = new EstoqueResponse();
+        dto.setId(entity.getId());
         dto.setNome(entity.getNome());
         dto.setTipo(entity.getTipo());
 
@@ -42,4 +43,5 @@ public class EstoqueMapper {
 
         return entity;
     }
+
 }
